@@ -23,17 +23,14 @@ export default function SupportScreen() {
     { label: 'Withdrawal Support', icon: 'telegram', color: '#35A9E1', url: links?.withdrawalSupport },
   ];
 
-  const handlePress = async (url) => {
+  const handlePress = (url) => {
     if (!url) {
       Toast.show({ type: 'info', text1: 'Coming Soon', text2: 'Link not configured yet.' });
       return;
     }
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
+    Linking.openURL(url).catch(() => {
       Toast.show({ type: 'error', text1: 'Cannot open link', text2: url });
-    }
+    });
   };
 
   return (

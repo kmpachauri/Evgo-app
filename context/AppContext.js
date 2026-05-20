@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import * as storage from '../utils/storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
 
@@ -85,7 +85,7 @@ export function AppProvider({ children }) {
     setError('');
     try {
       const data = await authService.login(payload);
-      await SecureStore.setItemAsync(TOKEN_KEY, data.token);
+      await storage.setItem(TOKEN_KEY, data.token);
       setToken(data.token);
       tokenRef.current = data.token;
       setAuthToken(data.token);
@@ -116,7 +116,7 @@ export function AppProvider({ children }) {
   }, []);
 
   const signOut = useCallback(async () => {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await storage.removeItem(TOKEN_KEY);
     setToken(null);
     tokenRef.current = null;
     setAuthToken(null);
@@ -139,7 +139,7 @@ export function AppProvider({ children }) {
 
   // restore token from storage on app start
   useEffect(() => {
-    SecureStore.getItemAsync(TOKEN_KEY).then((saved) => {
+    storage.getItem(TOKEN_KEY).then((saved) => {
       if (saved) {
         setToken(saved);
         tokenRef.current = saved;

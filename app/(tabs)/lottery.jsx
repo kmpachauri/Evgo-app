@@ -6,7 +6,7 @@ import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 import { claimLotteryReward, getLotteryStatus } from '../../services/lotteryService';
 
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
+const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 24;
 
 const PRIZES = [
   { id: 0, label: '₹55' },

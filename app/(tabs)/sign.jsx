@@ -4,7 +4,7 @@ import { Alert, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } 
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
+const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 24;
 
 export default function SignScreen() {
   const { claimDailySign, signClaimed, signTotalDays, signTotalBonus } = useApp();

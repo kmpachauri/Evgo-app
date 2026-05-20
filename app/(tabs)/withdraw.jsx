@@ -11,7 +11,7 @@ import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 import { createWithdraw } from '../../services/transactionService';
 
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
+const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 24;
 
 export default function WithdrawScreen() {
   const { user, balance, refreshAppData } = useApp();

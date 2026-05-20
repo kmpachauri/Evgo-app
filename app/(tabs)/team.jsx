@@ -1,4 +1,5 @@
-import { Alert, Clipboard, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import { Alert, Platform, RefreshControl, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
 import { Card } from '../../components/evgo/Card';
@@ -27,11 +28,27 @@ export default function TeamScreen() {
         <View style={styles.codeBlock}>
           <Text style={styles.label}>Invite Code</Text>
           <Text style={styles.code}>{user?.inviteCode}</Text>
-          <TouchableOpacity style={styles.copyButton} onPress={() => {
-            Clipboard.setString(user?.inviteCode || '');
-            Alert.alert('Copied', 'Invite code copied to clipboard.');
+          <TouchableOpacity style={styles.copyButton} onPress={async () => {
+            const url = `https://evgo.site/register?ref=${user?.inviteCode || ''}`;
+            await Clipboard.setStringAsync(url);
+            Alert.alert('Copied', 'Invite link copied to clipboard.');
           }}>
             <Text style={styles.copyText}>Copy Invite Link</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.copyButton, styles.shareButton]} onPress={() => {
+            const url = `https://evgo.site/register?ref=${user?.inviteCode || ''}`;
+            if (Platform.OS === 'web') {
+              if (navigator.share) {
+                navigator.share({ title: 'Join EVgo', url });
+              } else {
+                Clipboard.setStringAsync(url);
+                Alert.alert('Copied', 'Invite link copied (share not supported in this browser).');
+              }
+            } else {
+              Share.share({ message: url });
+            }
+          }}>
+            <Text style={styles.copyText}>Share Invite Link</Text>
           </TouchableOpacity>
         </View>
       </Card>
@@ -103,6 +120,9 @@ const styles = StyleSheet.create({
     marginTop: 11, marginRight: 12, height: 48,
     backgroundColor: colors.primary, alignItems: 'center',
     justifyContent: 'center', borderRadius: 3,
+  },
+  shareButton: {
+    backgroundColor: colors.primaryDark ?? '#2a6000',
   },
   copyText: { color: '#FFFFFF', fontWeight: '800' },
   stats: { flexDirection: 'row', gap: 8, marginTop: 10 },

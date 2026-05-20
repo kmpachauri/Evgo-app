@@ -1,5 +1,5 @@
 import { FontAwesome5 } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -19,9 +19,10 @@ import { requestOtp } from "../services/authService";
 
 export default function RegisterScreen() {
   const { signUp, loading, error } = useApp();
+  const { ref } = useLocalSearchParams();
   const [otpLoading, setOtpLoading] = useState(false);
   const [form, setForm] = useState({
-    inviteCode: "",
+    inviteCode: ref || "",
     email: "",
     phone: "",
     password: "",

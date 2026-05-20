@@ -6,7 +6,7 @@ import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 import { getCouponHistory, redeemCoupon, validateCoupon } from '../../services/couponService';
 
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
+const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 24;
 
 export default function CouponScreen() {
   const { refreshAppData } = useApp();
