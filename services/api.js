@@ -1,12 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://10.249.236.1:5000';
+export const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL || "https://node.evgo.site";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 12000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -37,7 +38,10 @@ api.interceptors.request.use((config) => {
   }
   activeRequests++;
   setLoading(true);
-  console.log(`[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, config.data || '');
+  console.log(
+    `[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
+    config.data || "",
+  );
   return config;
 });
 
@@ -45,15 +49,22 @@ api.interceptors.response.use(
   (response) => {
     activeRequests = Math.max(0, activeRequests - 1);
     if (activeRequests === 0) setLoading(false);
-    console.log(`[API] ${response.status} ${response.config.url}`, response.data);
+    console.log(
+      `[API] ${response.status} ${response.config.url}`,
+      response.data,
+    );
     return response;
   },
   (error) => {
     activeRequests = Math.max(0, activeRequests - 1);
     if (activeRequests === 0) setLoading(false);
     const data = error?.response?.data;
-    const msg = data?.message || data?.error || error?.message || 'Network error';
-    console.log(`[API] ERROR ${error?.response?.status || 0} ${error?.config?.url}`, msg);
+    const msg =
+      data?.message || data?.error || error?.message || "Network error";
+    console.log(
+      `[API] ERROR ${error?.response?.status || 0} ${error?.config?.url}`,
+      msg,
+    );
     if (error?.response?.status === 401 && onAutoLogout) {
       onAutoLogout();
     }
@@ -70,7 +81,10 @@ export async function requestWithFallback(request, fallbackData) {
   } catch (error) {
     const apiError = error?.response?.data || error;
     if (fallbackData !== undefined) {
-      console.warn('API placeholder fallback:', apiError?.message || error?.message);
+      console.warn(
+        "API placeholder fallback:",
+        apiError?.message || error?.message,
+      );
       return fallbackData;
     }
     throw apiError;

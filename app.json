@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.kmpachauri04.evgouiapp"
     },
     "web": {
       "output": "static",
@@ -43,6 +44,12 @@
     ],
     "experiments": {
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a8f3e0b8-2b48-4bde-9df6-4cc070c94254"
+      }
     }
   }
 }

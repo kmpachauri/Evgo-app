@@ -2,8 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ScrollView,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -37,13 +37,18 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.top}>
           <View style={styles.avatarRow}>
             <View style={styles.avatar}>
               <Ionicons name="person" size={38} color="#FFFFFF" />
             </View>
-            <Text style={styles.userName}>{user?.name || 'User'}</Text>
+            <Text style={styles.userName}>{user?.name || "User"}</Text>
             <Text style={styles.id}>ID: {user?.id || user?._id}</Text>
           </View>
           <View style={styles.statRow}>
@@ -71,10 +76,10 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.balanceRow}>
             <Card style={styles.balance}>
-              <Text style={styles.balanceValue}>{user?.name || 'User'}</Text>
+              <Text style={styles.balanceValue}>{user?.name || "User"}</Text>
               <Text style={styles.label}>Account Holder</Text>
               <View style={styles.line} />
-              <Text style={styles.balanceValue}>{user?.phone || 'N/A'}</Text>
+              <Text style={styles.balanceValue}>{user?.phone || "N/A"}</Text>
               <Text style={styles.label}>Mobile Number</Text>
             </Card>
             <View style={styles.buttons}>
@@ -97,6 +102,13 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
+        <ListItem
+          icon="download"
+          label="Download App"
+          onPress={() => {
+            window.open("http://72.60.96.94/latest.apk", "_blank");
+          }}
+        />
         <ListItem
           icon="gift-outline"
           label="Lottery"
@@ -164,31 +176,31 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   avatarRow: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 12,
   },
   avatar: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: "rgba(255,255,255,0.25)",
     borderWidth: 2,
-    borderColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   userName: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '900',
+    fontWeight: "900",
     marginBottom: 2,
   },
   id: {
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
+    color: "rgba(255,255,255,0.8)",
+    textAlign: "center",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 9,
   },
   statRow: {
