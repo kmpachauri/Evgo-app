@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Linking,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -105,11 +104,17 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
+
         <ListItem
           icon="download"
           label="Download App"
-          onPress={() => Linking.openURL('http://72.60.96.94/latest.apk')}
+          onPress={() => {
+            if (typeof window !== "undefined") {
+              window.location.href = "https://evgo.site/download/latest.apk";
+            }
+          }}
         />
+
         <ListItem
           icon="gift-outline"
           label="Lottery"
