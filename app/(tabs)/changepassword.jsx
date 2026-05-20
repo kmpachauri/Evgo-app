@@ -2,6 +2,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ChargerCarArt, EvgoLogo } from "../../components/evgo/BrandArt";
 import { EvgoButton } from "../../components/evgo/Button";
@@ -13,6 +14,7 @@ export default function ChangePasswordScreen() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const update = (field, value) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -46,7 +48,7 @@ export default function ChangePasswordScreen() {
         <ChargerCarArt />
       </View>
       <View style={styles.overlay} />
-      <View style={styles.panel}>
+      <View style={[styles.panel, { marginTop: insets.top + 40 }]}>
         <EvgoLogo compact />
         <Text style={styles.version}>CHANGE PASSWORD</Text>
         <View style={styles.form}>
@@ -129,7 +131,6 @@ const styles = StyleSheet.create({
   // },
   panel: {
     width: "88%",
-    marginTop: 82,
     paddingTop: 24,
     alignItems: "center",
   },

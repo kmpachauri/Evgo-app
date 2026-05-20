@@ -1,12 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Platform, RefreshControl, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 import { claimLotteryReward, getLotteryStatus } from '../../services/lotteryService';
-
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 24;
 
 const PRIZES = [
   { id: 0, label: '₹55' },
@@ -22,6 +21,7 @@ const PRIZES = [
 
 export default function LotteryScreen() {
   const { refreshAppData } = useApp();
+  const insets = useSafeAreaInsets();
   const [pending, setPending] = useState(null);
   const [history, setHistory] = useState([]);
   const [winner, setWinner] = useState(null);
@@ -67,7 +67,7 @@ export default function LotteryScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => router.replace('/(tabs)/profile')}>
           <Ionicons name="chevron-back-circle" size={30} color="#FFFFFF" />
         </TouchableOpacity>
@@ -142,7 +142,7 @@ export default function LotteryScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.primary },
   header: {
-    paddingTop: TOP, paddingBottom: 12, backgroundColor: colors.primaryDark,
+    paddingBottom: 12, backgroundColor: colors.primaryDark,
     flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10,
   },
   headerTitle: { flex: 1, color: '#FFFFFF', fontSize: 17, fontWeight: '700', textAlign: 'center' },

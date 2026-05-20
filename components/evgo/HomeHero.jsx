@@ -1,22 +1,34 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { ChargerCarArt, EvgoLogo } from './BrandArt';
+import { ChargerCarArt } from './BrandArt';
 import { colors } from '../../constants/colors';
 
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
-
 export function HomeHero() {
+  const insets = useSafeAreaInsets();
+  const barHeight = insets.top + 32;
+
   return (
-    <View style={[styles.hero, { paddingTop: TOP + 8 }]}>
-      <View style={styles.appNameRow}>
-        <Text style={styles.appName}>JIO FastCharge</Text>
+    <View style={[styles.hero, { minHeight: barHeight + 170 }]}>
+      {/* Green name bar */}
+      <View style={[styles.appNameRow, { height: barHeight, paddingTop: insets.top }]}>
+        <Text style={styles.appName}>EVgo</Text>
       </View>
-      <EvgoLogo compact />
-      <Text style={styles.save}>CHARGE YOUR{'\n'}EV AND SAVE!</Text>
-      <ChargerCarArt small />
-      <View style={styles.corner}>
-        <MaterialCommunityIcons name="ev-station" size={32} color={colors.primary} />
+
+      {/* Content below the bar */}
+      <View style={[styles.content, { marginTop: barHeight }]}>
+        {/* EVgo title — dark green, visible on light background */}
+        <Text style={styles.evgoTitle}>EVgo</Text>
+        <Text style={styles.save}>CHARGE YOUR EV AND SAVE!</Text>
+
+        {/* Scooter art */}
+        <ChargerCarArt small />
+      </View>
+
+      {/* Corner badge */}
+      <View style={[styles.corner, { top: barHeight - 4 }]}>
+        <MaterialCommunityIcons name="ev-station" size={28} color={colors.primary} />
       </View>
     </View>
   );
@@ -24,41 +36,47 @@ export function HomeHero() {
 
 const styles = StyleSheet.create({
   hero: {
-    minHeight: 206,
     overflow: 'hidden',
     backgroundColor: '#EFF7E8',
-    alignItems: 'center',
-    paddingTop: 11,
   },
   appNameRow: {
     position: 'absolute',
     top: 0, left: 0, right: 0,
     backgroundColor: colors.primary,
-    paddingVertical: 8,
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 6,
   },
   appName: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '900',
-    letterSpacing: 1,
+    letterSpacing: 2,
+  },
+  content: {
+    alignItems: 'center',
+    paddingTop: 10,
+    paddingBottom: 8,
+  },
+  evgoTitle: {
+    color: colors.primary,
+    fontSize: 28,
+    fontWeight: '900',
+    letterSpacing: 3,
   },
   save: {
-    position: 'absolute',
-    top: 43,
-    left: 86,
-    color: colors.primary,
-    fontSize: 10,
-    lineHeight: 11,
-    fontWeight: '900',
-    textAlign: 'center',
+    color: colors.primaryDark,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1,
+    marginTop: 2,
+    marginBottom: 10,
   },
   corner: {
     position: 'absolute',
     right: 0,
-    top: 0,
-    width: 64,
-    height: 64,
+    width: 52,
+    height: 52,
     backgroundColor: '#D0E9BE',
     alignItems: 'center',
     justifyContent: 'center',

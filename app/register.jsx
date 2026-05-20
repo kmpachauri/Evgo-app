@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
 import { ChargerCarArt, EvgoLogo } from "../components/evgo/BrandArt";
@@ -20,6 +21,7 @@ import { requestOtp } from "../services/authService";
 export default function RegisterScreen() {
   const { signUp, loading, error } = useApp();
   const { ref } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const [otpLoading, setOtpLoading] = useState(false);
   const [form, setForm] = useState({
     inviteCode: ref || "",
@@ -77,7 +79,7 @@ export default function RegisterScreen() {
         <ChargerCarArt />
       </View>
       <View style={styles.overlay} />
-      <View style={styles.panel}>
+      <View style={[styles.panel, { marginTop: insets.top + 40 }]}>
         <EvgoLogo compact />
         <Text style={styles.version}>FAST CHARGING 2.0</Text>
         <View style={styles.form}>
@@ -184,7 +186,6 @@ const styles = StyleSheet.create({
   // },
   panel: {
     width: "88%",
-    marginTop: 82,
     paddingTop: 24,
     alignItems: "center",
   },

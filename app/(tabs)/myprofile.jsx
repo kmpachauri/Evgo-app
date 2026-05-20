@@ -1,12 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
 export default function MyProfileScreen() {
   const { user, signOut } = useApp();
+  const insets = useSafeAreaInsets();
 
   const handleLogout = () => {
     signOut();
@@ -15,7 +17,7 @@ export default function MyProfileScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <Text style={styles.headerTitle}>My Profile</Text>
       </View>
 
@@ -80,10 +82,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   header: {
-    height: 54,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 14,
   },
   headerTitle: {
     color: '#FFFFFF',

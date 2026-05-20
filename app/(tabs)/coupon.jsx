@@ -1,15 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Platform, RefreshControl, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 import { getCouponHistory, redeemCoupon, validateCoupon } from '../../services/couponService';
 
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 24;
-
 export default function CouponScreen() {
   const { refreshAppData } = useApp();
+  const insets = useSafeAreaInsets();
   const [code, setCode] = useState('');
   const [history, setHistory] = useState([]);
   const [checking, setChecking] = useState(false);
@@ -54,7 +54,7 @@ export default function CouponScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => router.replace('/(tabs)/profile')}>
           <Ionicons name="chevron-back-circle" size={30} color="#FFFFFF" />
         </TouchableOpacity>
@@ -107,7 +107,7 @@ export default function CouponScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#FFFFFF' },
   header: {
-    paddingTop: TOP, paddingBottom: 12, backgroundColor: colors.primary,
+    paddingBottom: 12, backgroundColor: colors.primary,
     flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10,
   },
   headerTitle: { flex: 1, color: '#FFFFFF', fontSize: 17, fontWeight: '700', textAlign: 'center' },

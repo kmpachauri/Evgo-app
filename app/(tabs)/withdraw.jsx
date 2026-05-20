@@ -2,9 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
-  ActivityIndicator, Modal, Platform, ScrollView, StatusBar,
+  ActivityIndicator, Modal, ScrollView,
   StyleSheet, Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
 import { colors } from '../../constants/colors';
@@ -15,6 +16,7 @@ const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 24;
 
 export default function WithdrawScreen() {
   const { user, balance, refreshAppData } = useApp();
+  const insets = useSafeAreaInsets();
 
   const bank = user?.bankDetails || {};
   const [holder, setHolder]   = useState(bank.holderName || '');
@@ -70,7 +72,7 @@ export default function WithdrawScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.headerBar}>
+      <View style={[styles.headerBar, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => router.replace('/(tabs)/profile')}>
           <Ionicons name="chevron-back-circle" size={30} color="#FFFFFF" />
         </TouchableOpacity>
@@ -151,7 +153,7 @@ function Field({ label, value, onChangeText, keyboardType, autoCapitalize }) {
 
 const styles = StyleSheet.create({
   headerBar: {
-    paddingTop: TOP, paddingBottom: 12, backgroundColor: colors.primary,
+    paddingBottom: 12, backgroundColor: colors.primary,
     flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10,
   },
   headerTitle: { flex: 1, color: '#FFFFFF', fontSize: 17, fontWeight: '700', textAlign: 'center' },

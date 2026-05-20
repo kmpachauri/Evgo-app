@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EvgoButton } from "../../components/evgo/Button";
 import { Card } from "../../components/evgo/Card";
@@ -19,6 +20,7 @@ import { useApp } from "../../context/AppContext";
 
 export default function ProfileScreen() {
   const { user, refreshAppData, signOut } = useApp();
+  const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -44,7 +46,7 @@ export default function ProfileScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View style={styles.top}>
+        <View style={[styles.top, { paddingTop: insets.top + 12 }]}>
           <View style={styles.avatarRow}>
             <View style={styles.avatar}>
               <Ionicons name="person" size={38} color="#FFFFFF" />
@@ -172,7 +174,6 @@ const styles = StyleSheet.create({
   top: {
     backgroundColor: colors.primary,
     padding: 12,
-    paddingTop: 20,
   },
   avatarRow: {
     alignItems: "center",

@@ -1,10 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AboutPlanCard } from '../../components/evgo/AboutPlanCard';
 import { colors } from '../../constants/colors';
-
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
 
 const PLANS = [
   { name: 'Jio-1', price: 685,   daily: 37,   days: 35, totalRevenue: 1295,  referralCommission: 160,  welcomeBonus: 138 },
@@ -15,9 +14,10 @@ const PLANS = [
 ];
 
 export default function AboutScreen() {
+  const insets = useSafeAreaInsets();
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => router.replace('/(tabs)/profile')}>
           <Ionicons name="chevron-back-circle" size={30} color="#FFFFFF" />
         </TouchableOpacity>
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   header: {
-    paddingTop: TOP, paddingBottom: 12,
+    paddingBottom: 12,
     backgroundColor: colors.primary,
     flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10,
   },

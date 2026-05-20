@@ -1,14 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { colors } from '../../constants/colors';
 
-const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
-
 export function Header({ title, right, back = true, onRightPress }) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
       {back ? (
         <TouchableOpacity style={styles.back} onPress={() => router.back()}>
           <Ionicons name="chevron-back-circle" size={30} color="#FFFFFF" />
@@ -26,7 +27,6 @@ export function Header({ title, right, back = true, onRightPress }) {
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: STATUS_BAR_HEIGHT,
     backgroundColor: colors.primary,
     borderBottomColor: 'rgba(255,255,255,0.35)',
     borderBottomWidth: StyleSheet.hairlineWidth,

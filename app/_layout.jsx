@@ -7,6 +7,7 @@ import { Slot, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { useColorScheme, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-reanimated";
 import Toast from "react-native-toast-message";
 
@@ -45,15 +46,17 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <View style={{ flex: 1 }}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <AppProvider>
-          <AuthGate />
-        </AppProvider>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-      <Toast topOffset={60} />
-      <GlobalLoader />
-    </View>
+    <SafeAreaProvider>
+      <View style={{ flex: 1 }}>
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+          <AppProvider>
+            <AuthGate />
+          </AppProvider>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+        <Toast topOffset={60} />
+        <GlobalLoader />
+      </View>
+    </SafeAreaProvider>
   );
 }
