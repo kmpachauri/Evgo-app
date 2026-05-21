@@ -6,11 +6,21 @@ import { Card } from '../../components/evgo/Card';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
+function normalizeInviteCode(value = '') {
+  return String(value).trim().replace(/^jio/i, 'EVGO');
+}
+
+function normalizeUserCode(value = '') {
+  return String(value).trim().replace(/^jio/i, 'EVGO');
+}
+
 export default function TeamScreen() {
   const { team, user, loading, error, refreshAppData } = useApp();
   const [refreshing, setRefreshing] = useState(false);
   const levels = team?.levels ?? [];
   const members = team?.members ?? [];
+  const inviteCode = normalizeInviteCode(user?.inviteCode);
+  const inviteUrl = `https://evgo.site/register?ref=${inviteCode}`;
 
   useEffect(() => {
     refreshAppData();
@@ -27,25 +37,23 @@ export default function TeamScreen() {
       <Card style={styles.inviteCard}>
         <View style={styles.codeBlock}>
           <Text style={styles.label}>Invite Code</Text>
-          <Text style={styles.code}>{user?.inviteCode}</Text>
+          <Text style={styles.code}>{inviteCode}</Text>
           <TouchableOpacity style={styles.copyButton} onPress={async () => {
-            const url = `https://evgo.site/register?ref=${user?.inviteCode || ''}`;
-            await Clipboard.setStringAsync(url);
+            await Clipboard.setStringAsync(inviteUrl);
             Alert.alert('Copied', 'Invite link copied to clipboard.');
           }}>
             <Text style={styles.copyText}>Copy Invite Link</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.copyButton, styles.shareButton]} onPress={() => {
-            const url = `https://evgo.site/register?ref=${user?.inviteCode || ''}`;
             if (Platform.OS === 'web') {
               if (navigator.share) {
-                navigator.share({ title: 'Join EVgo', url });
+                navigator.share({ title: 'Join EVgo', url: inviteUrl });
               } else {
-                Clipboard.setStringAsync(url);
+                Clipboard.setStringAsync(inviteUrl);
                 Alert.alert('Copied', 'Invite link copied (share not supported in this browser).');
               }
             } else {
-              Share.share({ message: url });
+              Share.share({ message: inviteUrl });
             }
           }}>
             <Text style={styles.copyText}>Share Invite Link</Text>
@@ -83,7 +91,7 @@ export default function TeamScreen() {
         {/* Rows */}
         {members.map((member, i) => (
           <View key={member.id} style={[styles.tableRow, i % 2 === 0 && styles.tableRowAlt]}>
-            <Text style={styles.cell}>{member.id}</Text>
+            <Text style={styles.cell}>{normalizeUserCode(member.id)}</Text>
             <Text style={styles.cell}>{member.mobile}</Text>
             <Text style={styles.cell}>{member.joinedAt}</Text>
             <View style={styles.cellWrap}>

@@ -30,14 +30,14 @@ function AuthGate() {
         segments[0] === "splash";
 
       if (!isLoggedIn && !inPublic) {
-        router.replace("/login");
+        router.replace("/splash");
       } else if (isLoggedIn && !inAuthGroup) {
-        router.replace("/(tabs)");
+        router.replace(segments[0] === "splash" ? "/(tabs)" : "/(tabs)");
       }
     }, 50);
 
     return () => clearTimeout(timer);
-  }, [isLoggedIn, initialized, segments]);
+  }, [isLoggedIn, initialized, segments, router]);
 
   return <Slot />;
 }

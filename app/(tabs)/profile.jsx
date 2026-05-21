@@ -17,6 +17,10 @@ import { ListItem } from "../../components/evgo/ListItem";
 import { colors } from "../../constants/colors";
 import { useApp } from "../../context/AppContext";
 
+function normalizeBrandCode(value = "", replacement = "EVGO") {
+  return String(value).trim().replace(/^jio/i, replacement);
+}
+
 export default function ProfileScreen() {
   const { user, refreshAppData, signOut } = useApp();
   const insets = useSafeAreaInsets();
@@ -37,6 +41,10 @@ export default function ProfileScreen() {
     refreshAppData();
   }, [refreshAppData]);
 
+  const displayMobile = user?.phone || user?.bank?.mobile || 'N/A';
+  const displayId = normalizeBrandCode(user?.id || user?._id || "", "EVGO");
+  const mobileText = displayMobile === 'N/A' ? 'N/A' : `+91 ${displayMobile}`;
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -46,27 +54,30 @@ export default function ProfileScreen() {
         }
       >
         <View style={[styles.top, { paddingTop: insets.top + 12 }]}>
-          <View style={styles.avatarRow}>
-            <View style={styles.avatar}>
-              <Ionicons name="person" size={38} color="#FFFFFF" />
+          <View style={styles.brandBlock}>
+            <View style={styles.brandRow}>
+              <View style={styles.brandIcon}>
+                <Ionicons name="flash" size={20} color="#FFFFFF" />
+              </View>
+              <Text style={styles.brandTitle}>EVgo</Text>
             </View>
-            <Text style={styles.userName}>{user?.name || "User"}</Text>
-            <Text style={styles.id}>ID: {user?.id || user?._id}</Text>
+            <Text style={styles.id}>ID: {displayId}</Text>
+            <Text style={styles.mobile}>{mobileText}</Text>
           </View>
           <View style={styles.statRow}>
             <Card style={styles.stat}>
               <Text style={styles.value}>
-                {formatNumber(user?.currentBalance)}
+                {formatNumber(user?.totalAssets)}
                 {"\n"}Rs
               </Text>
-              <Text style={styles.label}>Current Balance</Text>
+              <Text style={styles.label}>Total Assets</Text>
             </Card>
             <Card style={styles.stat}>
               <Text style={styles.value}>
-                {formatNumber(user?.totalIncome)}
+                {formatNumber(user?.teamIncome)}
                 {"\n"}Rs
               </Text>
-              <Text style={styles.label}>Total Income</Text>
+              <Text style={styles.label}>Team Income</Text>
             </Card>
             <Card style={styles.stat}>
               <Text style={styles.value}>
@@ -78,11 +89,11 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.balanceRow}>
             <Card style={styles.balance}>
-              <Text style={styles.balanceValue}>{user?.name || "User"}</Text>
-              <Text style={styles.label}>Account Holder</Text>
+              <Text style={styles.balanceValue}>{formatNumber(user?.totalIncome)} Rs</Text>
+              <Text style={styles.label}>Total Income</Text>
               <View style={styles.line} />
-              <Text style={styles.balanceValue}>{user?.phone || "N/A"}</Text>
-              <Text style={styles.label}>Mobile Number</Text>
+              <Text style={styles.balanceValue}>{formatNumber(user?.currentBalance)} Rs</Text>
+              <Text style={styles.label}>Current Balance</Text>
             </Card>
             <View style={styles.buttons}>
               <View style={styles.btnCard}>
@@ -126,10 +137,11 @@ export default function ProfileScreen() {
           onPress={() => router.push("/(tabs)/coupon")}
         />
         <ListItem
-          icon="person-circle-outline"
+          icon="card-outline"
           label="Account"
-          onPress={() => router.push("/(tabs)/myprofile")}
+          onPress={() => router.push("/(tabs)/bank-details")}
         />
+        
         <ListItem
           icon="calendar-outline"
           label="Records"
@@ -155,6 +167,11 @@ export default function ProfileScreen() {
           label="About"
           onPress={() => router.push("/(tabs)/about")}
         />
+        <ListItem
+          icon="person-circle-outline"
+          label="My Profile"
+          onPress={() => router.push("/(tabs)/myprofile")}
+        />
       </ScrollView>
       <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
         <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
@@ -178,50 +195,69 @@ const styles = StyleSheet.create({
   },
   top: {
     backgroundColor: colors.primary,
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingBottom: 12,
   },
-  avatarRow: {
+  brandBlock: {
     alignItems: "center",
     marginBottom: 12,
   },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "rgba(255,255,255,0.25)",
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
+  brandRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 10,
     marginBottom: 8,
   },
-  userName: {
+  brandIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(255,255,255,0.22)",
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.72)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  brandTitle: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 32,
     fontWeight: "900",
-    marginBottom: 2,
+  },
+  brandSubtitle: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "800",
+    letterSpacing: 0.7,
+    marginBottom: 10,
   },
   id: {
-    color: "rgba(255,255,255,0.8)",
+    color: "#FFFFFF",
     textAlign: "center",
     fontSize: 12,
     fontWeight: "700",
-    marginBottom: 9,
+    marginBottom: 4,
+  },
+  mobile: {
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontSize: 12,
+    fontWeight: "700",
   },
   statRow: {
     flexDirection: "row",
-    gap: 4,
+    gap: 6,
   },
   stat: {
     flex: 1,
     alignItems: "center",
-    paddingVertical: 9,
+    paddingVertical: 10,
   },
   value: {
     color: colors.primary,
     textAlign: "center",
     fontWeight: "900",
-    lineHeight: 17,
+    lineHeight: 18,
+    fontSize: 14,
   },
   label: {
     color: "#6F6F6F",
@@ -239,7 +275,7 @@ const styles = StyleSheet.create({
   },
   balanceValue: {
     color: colors.primary,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "900",
   },
   line: {

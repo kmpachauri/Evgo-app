@@ -1,13 +1,15 @@
 import * as storage from '../utils/storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 import { setAuthToken, setAutoLogoutHandler } from '../services/api';
 import * as authService from '../services/authService';
 import { claimDailySignIn as claimDailySignInRequest, getTransactions } from '../services/transactionService';
-import { getDevices, getIncome, getTeam, getUserProfile } from '../services/userService';
+import { getDevices, getIncome, getNotifications, getTeam, getUserProfile } from '../services/userService';
 
 const TOKEN_KEY = 'auth_token';
+const SEEN_COUPON_NOTIFICATION_KEY = 'seen_coupon_notification_id';
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
@@ -18,6 +20,7 @@ export function AppProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
   const [income, setIncome] = useState(null);
   const [team, setTeam] = useState(null);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [signTotalDays, setSignTotalDays] = useState(0);
@@ -37,12 +40,13 @@ export function AppProvider({ children }) {
     setLoading(true);
     setError('');
     try {
-      const [profileData, deviceData, transactionData, incomeData, teamData] = await Promise.all([
+      const [profileData, deviceData, transactionData, incomeData, teamData, notificationData] = await Promise.all([
         getUserProfile(),
         getDevices(),
         getTransactions(),
         getIncome(),
         getTeam(),
+        getNotifications(),
       ]);
 
       setUser(profileData);
@@ -52,6 +56,7 @@ export function AppProvider({ children }) {
       setTransactions(transactionData);
       setIncome(incomeData);
       setTeam(teamData);
+      setNotifications(notificationData);
     } catch (err) {
       setError(err?.message || 'Unable to load data');
     } finally {
@@ -125,6 +130,7 @@ export function AppProvider({ children }) {
     setTransactions([]);
     setIncome(null);
     setTeam(null);
+    setNotifications([]);
     setSignTotalDays(0);
     setSignTotalBonus(0);
   }, []);
@@ -150,6 +156,40 @@ export function AppProvider({ children }) {
     });
   }, []);
 
+  useEffect(() => {
+    if (!token || !notifications.length) {
+      return;
+    }
+
+    const latestCouponNotification = notifications.find((item) => {
+      const title = String(item?.title || '').toLowerCase();
+      const message = String(item?.message || '').toLowerCase();
+      return title.includes('coupon') || message.includes('coupon');
+    });
+
+    if (!latestCouponNotification?._id) {
+      return;
+    }
+
+    let isMounted = true;
+
+    storage.getItem(SEEN_COUPON_NOTIFICATION_KEY).then((seenId) => {
+      if (!isMounted || seenId === latestCouponNotification._id) {
+        return;
+      }
+
+      storage.setItem(SEEN_COUPON_NOTIFICATION_KEY, latestCouponNotification._id);
+      Alert.alert(
+        latestCouponNotification.title || 'New coupon available!',
+        latestCouponNotification.message || 'Use this coupon code and win rewards.',
+      );
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [notifications, token]);
+
   const value = useMemo(
     () => ({
       user,
@@ -159,6 +199,7 @@ export function AppProvider({ children }) {
       transactions,
       income,
       team,
+      notifications,
       loading,
       error,
       isLoggedIn,
@@ -174,7 +215,7 @@ export function AppProvider({ children }) {
       signTotalBonus,
     }),
     [
-      user, token, balance, devices, transactions, income, team,
+      user, token, balance, devices, transactions, income, team, notifications,
       loading, error, isLoggedIn, initialized, signIn, signUp, signOut,
       claimDailySign, signClaimed, signTotalDays, signTotalBonus,
     ],

@@ -5,9 +5,24 @@ export async function getUserProfile() {
   return response.data;
 }
 
+export async function saveUserBankDetails(payload) {
+  const response = await api.put('/user/bank-details', payload);
+  return response.data;
+}
+
+export async function getNotifications() {
+  const response = await api.get('/user/notifications');
+  return response.data?.data || [];
+}
+
 export async function getDevices() {
   const response = await api.get('/plans');
-  return response.data.map((item) => ({
+  return response.data
+    .filter((item) => {
+      const planName = String(item?.name ?? item?.code ?? '').trim().toLowerCase();
+      return !planName.startsWith('jio');
+    })
+    .map((item) => ({
       id: item._id || item.id,
       name: item.name,
       price: item.price,
@@ -16,6 +31,10 @@ export async function getDevices() {
       totalRevenue: item.totalRevenue,
       inviteCommission: item.referralCommission || item.inviteCommission || item.invitationBonus,
       purchaseLimit: item.purchaseLimit,
+      totalBuys: item.totalBuys ?? item.totalBuy ?? item.purchaseCount ?? 0,
+      purchaseCount: item.purchaseCount ?? item.totalBuys ?? item.totalBuy ?? 0,
+      lastBuyDate: item.lastBuyDate,
+      expiryDate: item.expiryDate,
       sameDayBonus: item.sameDayBonus,
     }));
 }

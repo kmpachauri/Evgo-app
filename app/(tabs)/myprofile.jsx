@@ -6,9 +6,19 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
+function normalizeInviteCode(value = '') {
+  return String(value).trim().replace(/^jio/i, 'EVGO');
+}
+
+function normalizeUserCode(value = '') {
+  return String(value).trim().replace(/^jio/i, 'EVGO');
+}
+
 export default function MyProfileScreen() {
   const { user, signOut } = useApp();
   const insets = useSafeAreaInsets();
+  const inviteCode = normalizeInviteCode(user?.inviteCode);
+  const userId = normalizeUserCode(user?.id);
 
   const handleLogout = () => {
     signOut();
@@ -25,7 +35,7 @@ export default function MyProfileScreen() {
         <View style={styles.avatar}>
           <Ionicons name="person" size={54} color="#FFFFFF" />
         </View>
-        <Text style={styles.userId}>ID: {user?.id}</Text>
+        <Text style={styles.userId}>ID: {userId || '—'}</Text>
       </View>
 
       <View style={styles.infoCard}>
@@ -49,7 +59,7 @@ export default function MyProfileScreen() {
           <Ionicons name="person-circle-outline" size={20} color={colors.primary} />
           <View style={styles.infoText}>
             <Text style={styles.infoLabel}>Invite Code</Text>
-            <Text style={styles.infoValue}>{user?.inviteCode ?? '—'}</Text>
+            <Text style={styles.infoValue}>{inviteCode || '—'}</Text>
           </View>
         </View>
         <View style={styles.divider} />

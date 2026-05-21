@@ -22,7 +22,7 @@ export default function ProductScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.title}>JIO-EARN</Text>
+            <Text style={styles.title}>EVgo-EARN</Text>
             <Text style={styles.subtitle}>Choose a plan and view the live earning details below.</Text>
           </View>
         }
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 14,
-    paddingTop: 14,
+    paddingTop: 28,
     paddingBottom: 28,
   },
   header: {

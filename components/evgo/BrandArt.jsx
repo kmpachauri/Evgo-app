@@ -3,21 +3,21 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../../constants/colors';
 
-export function EvgoLogo({ dark = false, compact = false }) {
-  const size = compact ? 28 : 66;
-  const badgeSize = compact ? 20 : 48;
-  const textSize = compact ? 22 : 54;
+export function EvgoLogo({ dark = false, compact = false, showTagline = true }) {
+  const badgeSize = compact ? 52 : 84;
+  const textSize = compact ? 34 : 62;
 
   return (
     <View style={styles.logoRow}>
-      {/* Lightning bolt badge */}
       <View style={[
         styles.badge,
         { width: badgeSize, height: badgeSize, borderRadius: badgeSize * 0.22 },
         dark && styles.badgeDark,
         compact && styles.badgeCompact,
       ]}>
-        <Ionicons name="flash" size={badgeSize * 0.62} color={dark ? colors.primary : '#FFFFFF'} />
+        <View style={[styles.badgeInner, dark && styles.badgeInnerDark]}>
+          <Ionicons name="flash" size={badgeSize * 0.5} color={dark ? '#FFFFFF' : '#FFFFFF'} />
+        </View>
       </View>
 
       <View style={styles.wordWrap}>
@@ -29,12 +29,12 @@ export function EvgoLogo({ dark = false, compact = false }) {
         ]}>
           EVgo
         </Text>
-        {!compact && (
+        {!compact && showTagline && (
           <Text style={[styles.tagline, dark && styles.taglineDark]}>
             FAST CHARGING
           </Text>
         )}
-        {compact && (
+        {compact && showTagline && (
           <Text style={[styles.taglineCompact, dark && styles.taglineDark]}>
             FAST CHARGING
           </Text>
@@ -109,11 +109,30 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   badge: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.28)',
   },
   badgeDark: {
+    backgroundColor: 'rgba(121,184,61,0.16)',
+    borderColor: 'rgba(121,184,61,0.24)',
+  },
+  badgeInner: {
+    width: '76%',
+    height: '76%',
+    borderRadius: 999,
+    backgroundColor: colors.primaryDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  badgeInnerDark: {
     backgroundColor: colors.primary,
   },
   badgeCompact: {
@@ -125,7 +144,7 @@ const styles = StyleSheet.create({
   wordmark: {
     color: '#FFFFFF',
     fontWeight: '900',
-    letterSpacing: 2,
+    letterSpacing: 1.4,
   },
   wordmarkDark: {
     color: colors.primary,
@@ -135,16 +154,16 @@ const styles = StyleSheet.create({
   },
   tagline: {
     color: 'rgba(255,255,255,0.75)',
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 3,
-    marginTop: -4,
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 2.4,
+    marginTop: -2,
   },
   taglineCompact: {
     color: 'rgba(255,255,255,0.75)',
-    fontSize: 7,
+    fontSize: 10,
     fontWeight: '700',
-    letterSpacing: 2,
+    letterSpacing: 1.6,
   },
   taglineDark: {
     color: colors.primaryDark,

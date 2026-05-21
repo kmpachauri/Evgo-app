@@ -26,11 +26,11 @@ export const mockUser = {
 };
 
 export const mockDevices = [
-  { id: 'jio-1', name: 'Jio-1', price: 685, dailyIncome: 37, days: 35, totalRevenue: 1295, inviteCommission: 160, purchaseLimit: 2, sameDayBonus: 55 },
-  { id: 'jio-2', name: 'Jio-2', price: 2350, dailyIncome: 131, days: 36, totalRevenue: 4716, inviteCommission: 220, purchaseLimit: 3, sameDayBonus: 155 },
-  { id: 'jio-3', name: 'Jio-3', price: 6650, dailyIncome: 386, days: 37, totalRevenue: 14282, inviteCommission: 480, purchaseLimit: 3, sameDayBonus: 465 },
-  { id: 'jio-4', name: 'Jio-4', price: 13200, dailyIncome: 754, days: 38, totalRevenue: 28652, inviteCommission: 860, purchaseLimit: 3, sameDayBonus: 965 },
-  { id: 'jio-5', name: 'Jio-5', price: 26500, dailyIncome: 1563, days: 40, totalRevenue: 62520, inviteCommission: 1200, purchaseLimit: 3, sameDayBonus: 2445 },
+  { id: 'EVgo-1', name: 'EVgo-1', price: 685, dailyIncome: 37, days: 35, totalRevenue: 1295, inviteCommission: 160, purchaseLimit: 2, sameDayBonus: 55 },
+  { id: 'EVgo-2', name: 'EVgo-2', price: 2350, dailyIncome: 131, days: 36, totalRevenue: 4716, inviteCommission: 220, purchaseLimit: 3, sameDayBonus: 155 },
+  { id: 'EVgo-3', name: 'EVgo-3', price: 6650, dailyIncome: 386, days: 37, totalRevenue: 14282, inviteCommission: 480, purchaseLimit: 3, sameDayBonus: 465 },
+  { id: 'EVgo-4', name: 'EVgo-4', price: 13200, dailyIncome: 754, days: 38, totalRevenue: 28652, inviteCommission: 860, purchaseLimit: 3, sameDayBonus: 965 },
+  { id: 'EVgo-5', name: 'EVgo-5', price: 26500, dailyIncome: 1563, days: 40, totalRevenue: 62520, inviteCommission: 1200, purchaseLimit: 3, sameDayBonus: 2445 },
 ];
 
 export const mockTransactions = [

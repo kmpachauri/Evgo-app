@@ -19,6 +19,10 @@ const PRIZES = [
   { id: 8, label: '₹965' },
 ];
 
+function normalizePlanName(value = '') {
+  return String(value).trim().replace(/^jio/i, 'EVgo');
+}
+
 export default function LotteryScreen() {
   const { refreshAppData } = useApp();
   const insets = useSafeAreaInsets();
@@ -103,7 +107,7 @@ export default function LotteryScreen() {
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>Pending Chance</Text>
           <Text style={styles.summaryValue}>
-            {pending ? `${pending.planName} • ₹${pending.minAmount} to ₹${pending.maxAmount}` : 'No pending lottery right now'}
+            {pending ? `${normalizePlanName(pending.planName)} • ₹${pending.minAmount} to ₹${pending.maxAmount}` : 'No pending lottery right now'}
           </Text>
           <Text style={styles.summaryHint}>
             {pending ? 'Tap the center button to reveal your reward.' : 'Your next approved plan will create a new lottery chance.'}
@@ -126,7 +130,7 @@ export default function LotteryScreen() {
           ) : (
             history.slice(0, 8).map((item) => (
               <View key={item._id} style={styles.historyRow}>
-                <Text style={styles.historyPlan}>{item.planName}</Text>
+                <Text style={styles.historyPlan}>{normalizePlanName(item.planName)}</Text>
                 <Text style={styles.historyAmount}>
                   {item.status === 'claimed' ? `₹${item.rewardAmount}` : 'Pending'}
                 </Text>

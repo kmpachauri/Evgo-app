@@ -14,17 +14,54 @@ import {
   Text,
   TouchableOpacity,
   View,
+  StatusBar,
+  Modal,
 } from "react-native";
 
 import { Card } from "../../components/evgo/Card";
 import { HomeHero } from "../../components/evgo/HomeHero";
 import { colors } from "../../constants/colors";
 import { useApp } from "../../context/AppContext";
+import { getSocialLinks } from "../../services/userService";
 
 
 
+const RECHARGE_AMOUNTS = [685, 2350, 6650, 13200, 26500];
+const PHONE_PREFIXES = ["80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "95", "96", "97", "98", "99"];
 
-const WHATSAPP_URL = "https://wa.me/919999999999";
+function resolveWhatsAppUrl(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(raw)) {
+    return raw;
+  }
+
+  const digits = raw.replace(/\D/g, "");
+  return digits ? `https://wa.me/${digits}` : "";
+}
+
+function randomFrom(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function createFakeRecharge(index = 0) {
+  const prefix = randomFrom(PHONE_PREFIXES);
+  const suffix = String(Math.floor(1000 + Math.random() * 9000));
+  const amount = randomFrom(RECHARGE_AMOUNTS);
+
+  return {
+    id: `${Date.now()}-${index}-${prefix}-${suffix}`,
+    phone: `+91 ${prefix}****${suffix}`,
+    amount,
+  };
+}
+
+function createRechargeFeed(count = 5) {
+  return Array.from({ length: count }, (_, index) => createFakeRecharge(index));
+}
 
 export default function HomeScreen() {
   const { user, loading, error, refreshAppData, claimDailySign, signClaimed } = useApp();
@@ -32,13 +69,50 @@ export default function HomeScreen() {
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const [refreshing, setRefreshing] = useState(false);
+  const [fakeRecharges, setFakeRecharges] = useState(() => createRechargeFeed());
+  const [showPopup, setShowPopup] = useState(false);
+  const [socialLinks, setSocialLinks] = useState({});
+  
+  useEffect(() => {
+    setShowPopup(true);
+  }, []);
 
   useEffect(() => { refreshAppData(); }, [refreshAppData]);
+
+  useEffect(() => {
+    getSocialLinks()
+      .then((response) => setSocialLinks(response?.data || {}))
+      .catch(() => setSocialLinks({}));
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFakeRecharges(createRechargeFeed());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await refreshAppData();
+    try {
+      const response = await getSocialLinks();
+      setSocialLinks(response?.data || {});
+    } catch {
+      setSocialLinks({});
+    }
     setRefreshing(false);
+  };
+
+  const whatsappUrl = resolveWhatsAppUrl(socialLinks?.whatsapp);
+  const handleWhatsappPress = () => {
+    if (whatsappUrl) {
+      Linking.openURL(whatsappUrl);
+      return;
+    }
+
+    router.push("/(tabs)/support");
   };
 
 
@@ -57,7 +131,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Stock Card */}
-        <Card style={styles.stockCard}>
+        {/* <Card style={styles.stockCard}>
           <View style={styles.stockHeader}>
             <View style={styles.coin}><Text style={styles.coinText}>EVgo</Text></View>
             <View>
@@ -72,7 +146,7 @@ export default function HomeScreen() {
             <Text style={styles.loss}>{user?.market?.changeText}</Text>
           </Text>
           <Text style={styles.link}>Track all markets on TradingView</Text>
-        </Card>
+        </Card> */}
 
         {/* Telegram Banner — original green theme */}
         <View style={styles.banner}>
@@ -98,29 +172,92 @@ export default function HomeScreen() {
           <FontAwesome5 name="whatsapp" size={52} color="#16471E" />
         </View>
 
+        <View style={styles.rechargeFeed}>
+          {fakeRecharges.map((item) => (
+            <FakeRechargeCard key={item.id} item={item} />
+          ))}
+        </View>
+
         {/* Stats */}
-        <View style={styles.marketGrid}>
+        {/* <View style={styles.marketGrid}>
           <MiniStat title="Current Balance" value={formatRs(user?.currentBalance)} />
           <MiniStat title="Total Income" value={formatRs(user?.totalIncome)} />
           <MiniStat title="Today Income" value={formatRs(user?.todayIncome)} />
         </View>
         {loading ? <Text style={styles.statusText}>Loading...</Text> : null}
-        {error   ? <Text style={styles.statusText}>{error}</Text>   : null}
+        {error   ? <Text style={styles.statusText}>{error}</Text>   : null} */}
 
         {/* Shortcuts */}
-        <View style={styles.shortcutGrid}>
+        {/* <View style={styles.shortcutGrid}>
           <Shortcut label="Product" icon="charging-station" onPress={() => router.push("/(tabs)/equipment")} />
           <Shortcut label="Team"    icon="users"            onPress={() => router.push("/(tabs)/team")} />
           <Shortcut label="Records" icon="history"          onPress={() => router.push("/(tabs)/record")} />
-        </View>
+        </View> */}
 
+      {/* Pop up Notification */}
+       <View>
+      <Modal
+        transparent={true}
+        visible={showPopup}
+        animationType="fade"
+      >
+        <View style={styles.overlay}>
+          <View style={styles.popupContainer}>
+
+            {/* TOP CONTENT */}
+            <View style={styles.popupcontent}>
+              <Text style={styles.noteText}>
+                NOTE : lottery !! EVgo EVgo Welcome!
+              </Text>
+
+              <Text style={styles.boldText}>
+                Bouns Rs:138/- <Text style={styles.normalText}>EVgo, and it&apos;s better than ever! 🚀</Text>
+              </Text>
+
+              <Text style={styles.messageText}>
+                It&apos;s time to welcome EVgo again because it comes with an exciting
+                lottery system that sets it apart! 🎉 You have the chance to win
+                cashback and exclusive discounts – just activate your ID now and
+                enjoy the benefits! 💰🔥
+              </Text>
+            </View>
+
+            {/* BUTTON */}
+            <TouchableOpacity
+              style={styles.okButton}
+              onPress={() => setShowPopup(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.okText}>OK</Text>
+            </TouchableOpacity>
+
+          </View>
+        </View>
+      </Modal>
+    </View>
    
       </ScrollView>
 
       {/* WhatsApp FAB */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => Linking.openURL(WHATSAPP_URL)}>
+      <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={handleWhatsappPress}>
         <FontAwesome5 name="whatsapp" size={30} color="#FFFFFF" />
       </TouchableOpacity>
+    </View>
+
+    
+  );
+}
+
+function FakeRechargeCard({ item }) {
+  return (
+    <View style={styles.rechargeCard}>
+      <View style={styles.walletIconWrap}>
+        <FontAwesome5 name="wallet" size={28} color={colors.primary} />
+      </View>
+      <View style={styles.rechargeTextWrap}>
+        <Text style={styles.rechargePhone}>{item.phone}</Text>
+        <Text style={styles.rechargeSuccess}>Recharged {item.amount}Rs successful</Text>
+      </View>
     </View>
   );
 }
@@ -191,7 +328,7 @@ const styles = StyleSheet.create({
 
   // Banners — original green theme
   banner: {
-    marginHorizontal: 10, marginTop: 10, minHeight: 90,
+    marginHorizontal: 10, marginTop: 20, minHeight: 90,
     borderRadius: 10, backgroundColor: colors.primary,
     flexDirection: "row", alignItems: "center",
     justifyContent: "space-between", paddingHorizontal: 16,
@@ -205,11 +342,33 @@ const styles = StyleSheet.create({
   },
   goBtnText: { color: "#FFFFFF", fontWeight: "900", fontSize: 14 },
 
+  rechargeFeed: { paddingHorizontal: 10, paddingTop: 36, gap: 10 },
+  rechargeCard: {
+    minHeight: 78,
+    borderWidth: 1.8,
+    borderColor: "#1D2F57",
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+  },
+  walletIconWrap: {
+    width: 36,
+    marginRight: 16,
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+  rechargeTextWrap: { flex: 1 },
+  rechargePhone: { color: "#8A8A8A", fontSize: 14, fontWeight: "700" },
+  rechargeSuccess: { color: "#555555", fontSize: 15, fontWeight: "800", marginTop: 1 },
+
   marketGrid: { flexDirection: "row", gap: 4, padding: 10 },
   miniStat:   { flex: 1, paddingVertical: 10, alignItems: "center" },
   miniValue:  { color: colors.primary, fontWeight: "900", fontSize: 13, textAlign: "center" },
-  miniTitle:  { color: "#6E6E6E", fontSize: 11, marginTop: 5 },
-  statusText: { color: colors.primary, fontSize: 12, fontWeight: "700", textAlign: "center", marginBottom: 8 },
+  miniTitle:  { color: "#6E6E6E", fontSize: 14, marginTop: 5 },
+  statusText: { color: colors.primary, fontSize: 15, fontWeight: "700", textAlign: "center", marginBottom: 8 },
 
   shortcutGrid: { flexDirection: "row", paddingHorizontal: 10, gap: 8 },
   shortcut: {
@@ -218,10 +377,68 @@ const styles = StyleSheet.create({
   },
   shortcutText: { marginTop: 5, color: colors.primary, fontSize: 12, fontWeight: "700" },
 
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+
+  popupContainer: {
+    width: "95%",
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+
+  popupcontent: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 22,
+  },
+
+  noteText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 12,
+  },
+
+  boldText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#333',
+    lineHeight: 28,
+    marginBottom: 12,
+  },
+
+  normalText: {
+    fontWeight: '400',
+  },
+
+  messageText: {
+    fontSize: 14,
+    color: '#444',
+    lineHeight: 26,
+  },
+
+  okButton: {
+    backgroundColor: "green",
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  okText: {
+    color: '#fff',
+    fontSize: 19,
+    fontWeight: '700',
+  },
 
   fab: {
-    position: "absolute", bottom: 90, right: 18,
-    width: 56, height: 56, borderRadius: 28, backgroundColor: "#25D366",
+    position: "absolute", bottom: 50, right: 18,
+    width: 56, height: 56, borderRadius: 28, backgroundColor: "green",
     alignItems: "center", justifyContent: "center",
     shadowColor: "#000", shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25, shadowRadius: 6, elevation: 8,

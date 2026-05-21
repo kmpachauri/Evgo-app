@@ -42,9 +42,9 @@ export default function LoginScreen() {
         <ChargerCarArt />
       </View>
       <View style={styles.overlay} />
-      <View style={[styles.panel, { marginTop: insets.top + 40 }]}>
-        <EvgoLogo compact />
-        <Text style={styles.version}>FAST CHARGING 2.0</Text>
+      <View style={[styles.panel, { marginTop: insets.top + 80 }]}>
+        <EvgoLogo compact showTagline={false} />
+        
         <View style={styles.form}>
           <View style={styles.inputWrap}>
             <FontAwesome5 name="envelope" size={14} color="#A8AAB0" />
@@ -96,35 +96,24 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     position: "absolute",
-    top: 92,
+    top: 130,
     width: "100%",
     opacity: 0.35,
   },
-  // overlay: {
-  //   position: 'absolute',
-  //   top: 0,
-  //   left: 0,
-  //   right: 0,
-  //   height: 430,
-  //   backgroundColor: 'rgba(56,86,42,0.45)',
-  // },
+ 
   panel: {
     width: "88%",
     paddingTop: 24,
     alignItems: "center",
   },
-  version: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "900",
-    marginTop: 2,
-    marginBottom: 50,
-  },
+  
   form: {
     width: "100%",
     gap: 16,
+    marginTop: 100,
   },
   inputWrap: {
+    
     height: 52,
     borderRadius: 8,
     backgroundColor: "#F2F3F8",

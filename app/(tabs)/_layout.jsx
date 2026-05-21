@@ -57,6 +57,7 @@ export default function TabLayout() {
       <Tabs.Screen name="sign" options={{ href: null }} />
       <Tabs.Screen name="lottery" options={{ href: null }} />
       <Tabs.Screen name="coupon" options={{ href: null }} />
+      <Tabs.Screen name="bank-details" options={{ href: null }} />
       <Tabs.Screen name="myprofile" options={{ href: null }} />
       <Tabs.Screen name="logout" options={{ href: null }} />
       <Tabs.Screen name="recharge" options={{ href: null }} />

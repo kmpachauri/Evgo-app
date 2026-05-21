@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator, Modal, ScrollView,
   StyleSheet, Text, TextInput, TouchableOpacity, View,
@@ -11,8 +11,6 @@ import Toast from 'react-native-toast-message';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 import { createWithdraw } from '../../services/transactionService';
-
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 24;
 
 export default function WithdrawScreen() {
   const { user, balance, refreshAppData } = useApp();
@@ -28,6 +26,15 @@ export default function WithdrawScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [withdrawAmt, setWithdrawAmt]   = useState('');
   const [submitting, setSubmitting]     = useState(false);
+
+  useEffect(() => {
+    const latestBank = user?.bankDetails || {};
+    setHolder(latestBank.holderName || '');
+    setAccount(latestBank.accountNumber || '');
+    setIfsc(latestBank.ifsc || '');
+    setBankName(latestBank.bankName || '');
+    setUpiId(latestBank.upiId || '');
+  }, [user]);
 
   const handleSubmit = () => {
     if (!holder || !account || !ifsc) {

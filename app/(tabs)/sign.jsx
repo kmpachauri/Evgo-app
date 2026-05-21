@@ -54,7 +54,7 @@ export default function SignScreen() {
         </View>
 
         <Text style={styles.hint}>
-          Please click the click button, you will get a bonus of 2 rupees!
+          Please click the click button, you can get a bonus of 2 rupees!
         </Text>
       </View>
     </View>
@@ -79,10 +79,10 @@ const styles = StyleSheet.create({
   },
   clickCircleClaimed: { backgroundColor: colors.primaryDark, borderColor: '#AAAAAA' },
   clickText: { color: '#FFFFFF', fontSize: 28, fontWeight: '900' },
-  statsRow: { flexDirection: 'row', gap: 16, marginTop: 48 },
+  statsRow: { flexDirection: 'row', gap: 16, marginTop: 48, marginHorizontal: 12, },
   statBox: {
     flex: 1, backgroundColor: colors.primary, borderRadius: 10,
-    paddingVertical: 18, paddingHorizontal: 24, alignItems: 'center',
+    paddingVertical: 14, paddingHorizontal: 28, alignItems: 'center',
     minWidth: 140,
   },
   statTitle: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
