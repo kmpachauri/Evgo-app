@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import PlanCard from '../../components/PlanCard';
-import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
@@ -32,17 +31,10 @@ export default function ProductScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
-          <>
-            <View style={styles.header}>
-              <Text style={styles.title}>EVgo-EARN</Text>
-              <Text style={styles.subtitle}>Choose a plan and view the live earning details below.</Text>
-            </View>
-            <WebRefreshNotice
-              onPress={onRefresh}
-              refreshing={refreshing}
-              label="Tap here to refresh latest plans on web"
-            />
-          </>
+          <View style={styles.header}>
+            <Text style={styles.title}>EVgo-EARN</Text>
+            <Text style={styles.subtitle}>Choose a plan and view the live earning details below.</Text>
+          </View>
         }
         ListEmptyComponent={
           !loading ? (

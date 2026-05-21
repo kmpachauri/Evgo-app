@@ -6,7 +6,6 @@ import {
   Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
 
-import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
@@ -64,12 +63,6 @@ export default function RechargeScreen() {
           <Text style={styles.total}>{formatRs(user?.totalRecharge)}{'\n'}Total Recharge</Text>
           <Text style={styles.total}>{formatRs(user?.totalWithdraw)}{'\n'}Total Withdraw</Text>
         </View>
-
-        <WebRefreshNotice
-          onPress={onRefresh}
-          refreshing={refreshing}
-          label="Tap here to refresh recharge totals on web"
-        />
 
         <View style={styles.inputBlock}>
           <Text style={styles.label}>{params.planName ? `Continue To Deposit for ${params.planName}` : 'Continue To Deposit'}</Text>

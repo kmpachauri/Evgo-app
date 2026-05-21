@@ -4,7 +4,6 @@ import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 
-import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
@@ -53,12 +52,6 @@ export default function MyProfileScreen() {
           </View>
           <Text style={styles.userId}>ID: {userId || '—'}</Text>
         </View>
-
-        <WebRefreshNotice
-          onPress={onRefresh}
-          refreshing={refreshing}
-          label="Tap here to refresh profile details on web"
-        />
 
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>

@@ -14,7 +14,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
-import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 import { saveUserBankDetails } from '../../services/userService';
@@ -100,12 +99,6 @@ export default function BankDetailsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
       >
         <Text style={styles.sectionTitle}>BANK DETAILS</Text>
-
-        <WebRefreshNotice
-          onPress={handleRefresh}
-          refreshing={refreshing}
-          label="Tap here to refresh latest bank details on web"
-        />
 
         {showSavedCard ? (
           <View style={styles.savedCard}>

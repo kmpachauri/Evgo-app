@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import { Alert, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
@@ -49,12 +48,6 @@ export default function SignScreen() {
         contentContainerStyle={styles.body}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <WebRefreshNotice
-          onPress={onRefresh}
-          refreshing={refreshing}
-          label="Tap here to refresh sign-in status on web"
-        />
-
         <TouchableOpacity
           style={[styles.clickCircle, signClaimed && styles.clickCircleClaimed]}
           onPress={handleClaim}

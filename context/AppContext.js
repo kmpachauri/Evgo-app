@@ -1,6 +1,6 @@
 import * as storage from '../utils/storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, AppState } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 import { setAuthToken, setAutoLogoutHandler } from '../services/api';
@@ -10,6 +10,7 @@ import { getDevices, getIncome, getNotifications, getTeam, getUserProfile } from
 
 const TOKEN_KEY = 'auth_token';
 const SEEN_COUPON_NOTIFICATION_KEY = 'seen_coupon_notification_id';
+const APP_REFRESH_INTERVAL_MS = 3 * 60 * 1000;
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
@@ -32,11 +33,14 @@ export function AppProvider({ children }) {
   const signReward = Number(user?.signInReward ?? 2);
 
   const tokenRef = useRef(token);
+  const refreshInFlightRef = useRef(false);
   tokenRef.current = token;
 
   const refreshAppData = useCallback(async () => {
     if (!tokenRef.current) return;
+    if (refreshInFlightRef.current) return;
 
+    refreshInFlightRef.current = true;
     setLoading(true);
     setError('');
     try {
@@ -60,6 +64,7 @@ export function AppProvider({ children }) {
     } catch (err) {
       setError(err?.message || 'Unable to load data');
     } finally {
+      refreshInFlightRef.current = false;
       setLoading(false);
     }
   }, []);
@@ -154,7 +159,7 @@ export function AppProvider({ children }) {
       }
       setInitialized(true);
     });
-  }, []);
+  }, [refreshAppData]);
 
   useEffect(() => {
     if (!token || !notifications.length) {
@@ -190,6 +195,72 @@ export function AppProvider({ children }) {
     };
   }, [notifications, token]);
 
+  useEffect(() => {
+    if (!initialized || !token) {
+      return undefined;
+    }
+
+    let intervalId = null;
+
+    const clearRefreshInterval = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+
+    const startRefreshInterval = () => {
+      if (intervalId) {
+        return;
+      }
+
+      intervalId = setInterval(() => {
+        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+          return;
+        }
+        refreshAppData();
+      }, APP_REFRESH_INTERVAL_MS);
+    };
+
+    const handleAppRefresh = () => {
+      if (!tokenRef.current) {
+        return;
+      }
+      refreshAppData();
+      startRefreshInterval();
+    };
+
+    startRefreshInterval();
+
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        handleAppRefresh();
+      } else {
+        clearRefreshInterval();
+      }
+    });
+
+    let visibilityHandler = null;
+    if (typeof document !== 'undefined' && document.addEventListener) {
+      visibilityHandler = () => {
+        if (document.visibilityState === 'visible') {
+          handleAppRefresh();
+        } else {
+          clearRefreshInterval();
+        }
+      };
+      document.addEventListener('visibilitychange', visibilityHandler);
+    }
+
+    return () => {
+      clearRefreshInterval();
+      appStateSubscription.remove();
+      if (visibilityHandler && typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', visibilityHandler);
+      }
+    };
+  }, [initialized, refreshAppData, token]);
+
   const value = useMemo(
     () => ({
       user,
@@ -217,7 +288,7 @@ export function AppProvider({ children }) {
     [
       user, token, balance, devices, transactions, income, team, notifications,
       loading, error, isLoggedIn, initialized, signIn, signUp, signOut,
-      claimDailySign, signClaimed, signTotalDays, signTotalBonus,
+      claimDailySign, refreshAppData, signClaimed, signTotalDays, signTotalBonus,
     ],
   );
 
