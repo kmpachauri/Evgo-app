@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert, Platform, ScrollView, StatusBar, StyleSheet,
+  Alert, Platform, RefreshControl, ScrollView, StatusBar, StyleSheet,
   Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
 
+import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
@@ -19,10 +20,11 @@ const METHODS = [
 ];
 
 export default function RechargeScreen() {
-  const { user } = useApp();
+  const { user, refreshAppData } = useApp();
   const params = useLocalSearchParams();
   const [amount, setAmount] = useState(String(params.amount || ''));
   const [selectedMethod, setSelectedMethod] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleRecharge = () => {
     if (!amount || Number(amount) <= 0) {
@@ -31,6 +33,15 @@ export default function RechargeScreen() {
     }
     const query = `amount=${amount}&method=${METHODS[selectedMethod].label}&planId=${params.planId || ''}&planName=${params.planName || ''}`;
     router.push(`/(tabs)/payment-upi?${query}`);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refreshAppData();
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
@@ -45,11 +56,20 @@ export default function RechargeScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.totalBand}>
           <Text style={styles.total}>{formatRs(user?.totalRecharge)}{'\n'}Total Recharge</Text>
           <Text style={styles.total}>{formatRs(user?.totalWithdraw)}{'\n'}Total Withdraw</Text>
         </View>
+
+        <WebRefreshNotice
+          onPress={onRefresh}
+          refreshing={refreshing}
+          label="Tap here to refresh recharge totals on web"
+        />
 
         <View style={styles.inputBlock}>
           <Text style={styles.label}>{params.planName ? `Continue To Deposit for ${params.planName}` : 'Continue To Deposit'}</Text>

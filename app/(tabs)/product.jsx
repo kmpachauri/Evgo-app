@@ -1,16 +1,27 @@
-import { useEffect } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import PlanCard from '../../components/PlanCard';
+import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
 export default function ProductScreen() {
   const { devices, loading, error, refreshAppData } = useApp();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     refreshAppData();
   }, [refreshAppData]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refreshAppData();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   return (
     <View style={styles.screen}>
@@ -21,10 +32,17 @@ export default function ProductScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.title}>EVgo-EARN</Text>
-            <Text style={styles.subtitle}>Choose a plan and view the live earning details below.</Text>
-          </View>
+          <>
+            <View style={styles.header}>
+              <Text style={styles.title}>EVgo-EARN</Text>
+              <Text style={styles.subtitle}>Choose a plan and view the live earning details below.</Text>
+            </View>
+            <WebRefreshNotice
+              onPress={onRefresh}
+              refreshing={refreshing}
+              label="Tap here to refresh latest plans on web"
+            />
+          </>
         }
         ListEmptyComponent={
           !loading ? (
@@ -40,6 +58,7 @@ export default function ProductScreen() {
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </>
         }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
     </View>
   );

@@ -39,7 +39,9 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     try {
       await signUp(form);
-      router.replace(`/congratulations?email=${form.email}&password=${form.password}`);
+      router.replace(
+        `/congratulations?email=${form.email}&password=${form.password}`,
+      );
     } catch (registrationError) {
       Toast.show({
         type: "error",
@@ -51,7 +53,11 @@ export default function RegisterScreen() {
 
   const handleOtp = async () => {
     if (!form.email.trim()) {
-      Toast.show({ type: "error", text1: "Email required", text2: "Please enter your email address first." });
+      Toast.show({
+        type: "error",
+        text1: "Email required",
+        text2: "Please enter your email address first.",
+      });
       return;
     }
     setOtpLoading(true);
@@ -81,7 +87,7 @@ export default function RegisterScreen() {
       <View style={styles.overlay} />
       <View style={[styles.panel, { marginTop: insets.top + 40 }]}>
         <EvgoLogo compact showTagline={false} />
-        
+
         <View style={styles.form}>
           <View style={styles.inputWrap}>
             <FontAwesome5 name="user" size={14} color="#A8AAB0" />
@@ -111,10 +117,13 @@ export default function RegisterScreen() {
             <TextInput
               style={styles.input}
               value={form.phone}
-              onChangeText={(value) => updateField("phone", value)}
+              onChangeText={(value) =>
+                updateField("phone", value.replace(/[^0-9]/g, "").slice(0, 10))
+              }
               placeholder="Enter mobile number"
               placeholderTextColor="#777C85"
-              keyboardType="phone-pad"
+              keyboardType="number-pad"
+              maxLength={10}
             />
           </View>
           <View style={styles.inputWrap}>
@@ -125,30 +134,45 @@ export default function RegisterScreen() {
               onChangeText={(value) => updateField("password", value)}
               placeholder="Enter your password"
               placeholderTextColor="#777C85"
-               secureTextEntry={!showPassword}
+              secureTextEntry={!showPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <FontAwesome5 name={showPassword ? "eye-slash" : "eye"} size={14} color="#A8AAB0" />
+              <FontAwesome5
+                name={showPassword ? "eye-slash" : "eye"}
+                size={14}
+                color="#A8AAB0"
+              />
             </TouchableOpacity>
           </View>
-          <View style={styles.inputWrap}>
-            <FontAwesome5 name="shield-alt" size={14} color="#A8AAB0" />
-            <TextInput
-              style={styles.input}
-              value={form.otp}
-              onChangeText={(value) => updateField("otp", value)}
-              placeholder="Enter email OTP"
-              placeholderTextColor="#777C85"
-              keyboardType="number-pad"
-            />
-            <TouchableOpacity onPress={handleOtp} disabled={otpLoading}>
-              {otpLoading
-                ? <ActivityIndicator size="small" color="#7DBCE0" />
-                : <Text style={styles.send}>Email OTP</Text>
-              }
+          <View style={styles.otpRow}>
+            <View style={[styles.inputWrap, styles.otpInputWrap]}>
+              <FontAwesome5 name="shield-alt" size={14} color="#A8AAB0" />
+              <TextInput
+                style={styles.input}
+                value={form.otp}
+                onChangeText={(value) => updateField("otp", value)}
+                placeholder="Enter email OTP"
+                placeholderTextColor="#777C85"
+                keyboardType="number-pad"
+              />
+            </View>
+            <TouchableOpacity
+              style={styles.otpButton}
+              onPress={handleOtp}
+              disabled={otpLoading}
+            >
+              {otpLoading ? (
+                <ActivityIndicator size="small" color="#7DBCE0" />
+              ) : (
+                <Text style={styles.send}>Send OTP</Text>
+              )}
             </TouchableOpacity>
           </View>
-          <EvgoButton style={styles.register} onPress={handleRegister} disabled={loading}>
+          <EvgoButton
+            style={styles.register}
+            onPress={handleRegister}
+            disabled={loading}
+          >
             {loading ? <ActivityIndicator color="#fff" /> : "Register"}
           </EvgoButton>
           <EvgoButton
@@ -181,7 +205,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     alignItems: "center",
   },
- 
+
   form: {
     width: "100%",
     gap: 16,
@@ -195,6 +219,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     gap: 10,
+  },
+  otpRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  otpInputWrap: {
+    flex: 1,
+  },
+  otpButton: {
+    height: 52,
+    minWidth: 96,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: "#F2F3F8",
+    alignItems: "center",
+    justifyContent: "center",
   },
   country: {
     color: "#6E7278",

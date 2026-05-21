@@ -1,13 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
 export default function SignScreen() {
-  const { claimDailySign, signClaimed, signTotalDays, signTotalBonus } = useApp();
+  const { claimDailySign, refreshAppData, signClaimed, signTotalDays, signTotalBonus } = useApp();
   const insets = useSafeAreaInsets();
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleClaim = () => {
     claimDailySign()
@@ -23,6 +26,15 @@ export default function SignScreen() {
       });
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refreshAppData();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
@@ -33,7 +45,16 @@ export default function SignScreen() {
         <View style={{ width: 30 }} />
       </View>
 
-      <View style={styles.body}>
+      <ScrollView
+        contentContainerStyle={styles.body}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <WebRefreshNotice
+          onPress={onRefresh}
+          refreshing={refreshing}
+          label="Tap here to refresh sign-in status on web"
+        />
+
         <TouchableOpacity
           style={[styles.clickCircle, signClaimed && styles.clickCircleClaimed]}
           onPress={handleClaim}
@@ -56,7 +77,7 @@ export default function SignScreen() {
         <Text style={styles.hint}>
           Please click the click button, you can get a bonus of 2 rupees!
         </Text>
-      </View>
+      </ScrollView>
     </View>
   );
 }

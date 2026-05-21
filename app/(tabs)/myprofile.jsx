@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useState } from 'react';
 
+import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 
@@ -15,8 +17,9 @@ function normalizeUserCode(value = '') {
 }
 
 export default function MyProfileScreen() {
-  const { user, signOut } = useApp();
+  const { user, signOut, refreshAppData } = useApp();
   const insets = useSafeAreaInsets();
+  const [refreshing, setRefreshing] = useState(false);
   const inviteCode = normalizeInviteCode(user?.inviteCode);
   const userId = normalizeUserCode(user?.id);
 
@@ -25,63 +28,83 @@ export default function MyProfileScreen() {
     router.replace('/login');
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refreshAppData();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
     <View style={styles.screen}>
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <Text style={styles.headerTitle}>My Profile</Text>
-      </View>
-
-      <View style={styles.avatarWrap}>
-        <View style={styles.avatar}>
-          <Ionicons name="person" size={54} color="#FFFFFF" />
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+          <Text style={styles.headerTitle}>My Profile</Text>
         </View>
-        <Text style={styles.userId}>ID: {userId || '—'}</Text>
-      </View>
 
-      <View style={styles.infoCard}>
-      <View style={styles.infoRow}>
-          <Ionicons name="mail" size={20} color={colors.primary} />
-          <View style={styles.infoText}>
-            <Text style={styles.infoLabel}>Email Id</Text>
-            <Text style={styles.infoValue}>{user?.email ?? '—'}</Text>
+        <View style={styles.avatarWrap}>
+          <View style={styles.avatar}>
+            <Ionicons name="person" size={54} color="#FFFFFF" />
+          </View>
+          <Text style={styles.userId}>ID: {userId || '—'}</Text>
+        </View>
+
+        <WebRefreshNotice
+          onPress={onRefresh}
+          refreshing={refreshing}
+          label="Tap here to refresh profile details on web"
+        />
+
+        <View style={styles.infoCard}>
+          <View style={styles.infoRow}>
+            <Ionicons name="mail" size={20} color={colors.primary} />
+            <View style={styles.infoText}>
+              <Text style={styles.infoLabel}>Email Id</Text>
+              <Text style={styles.infoValue}>{user?.email ?? '—'}</Text>
+            </View>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.infoRow}>
+            <Ionicons name="call-outline" size={20} color={colors.primary} />
+            <View style={styles.infoText}>
+              <Text style={styles.infoLabel}>Mobile Number</Text>
+              <Text style={styles.infoValue}>{user?.phone ?? '—'}</Text>
+            </View>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.infoRow}>
+            <Ionicons name="person-circle-outline" size={20} color={colors.primary} />
+            <View style={styles.infoText}>
+              <Text style={styles.infoLabel}>Invite Code</Text>
+              <Text style={styles.infoValue}>{inviteCode || '—'}</Text>
+            </View>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.infoRow}>
+            <Ionicons name="wallet-outline" size={20} color={colors.primary} />
+            <View style={styles.infoText}>
+              <Text style={styles.infoLabel}>Current Balance</Text>
+              <Text style={styles.infoValue}>{Number(user?.currentBalance ?? 0).toFixed(2)} Rs</Text>
+            </View>
           </View>
         </View>
-        <View style={styles.divider} />
-        <View style={styles.infoRow}>
-          <Ionicons name="call-outline" size={20} color={colors.primary} />
-          <View style={styles.infoText}>
-            <Text style={styles.infoLabel}>Mobile Number</Text>
-            <Text style={styles.infoValue}>{user?.phone ?? '—'}</Text>
-          </View>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.infoRow}>
-          <Ionicons name="person-circle-outline" size={20} color={colors.primary} />
-          <View style={styles.infoText}>
-            <Text style={styles.infoLabel}>Invite Code</Text>
-            <Text style={styles.infoValue}>{inviteCode || '—'}</Text>
-          </View>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.infoRow}>
-          <Ionicons name="wallet-outline" size={20} color={colors.primary} />
-          <View style={styles.infoText}>
-            <Text style={styles.infoLabel}>Current Balance</Text>
-            <Text style={styles.infoValue}>{Number(user?.currentBalance ?? 0).toFixed(2)} Rs</Text>
-          </View>
-        </View>
-      </View>
 
-      <TouchableOpacity style={styles.changeBtn} onPress={() => router.push('/(tabs)/changepassword')}>
-        <Ionicons name="lock-closed-outline" size={20} color="#FFFFFF" />
-        <Text style={styles.changeBtnText}>Change Password</Text>
-        <Ionicons name="chevron-forward" size={18} color="#FFFFFF" />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.changeBtn} onPress={() => router.push('/(tabs)/changepassword')}>
+          <Ionicons name="lock-closed-outline" size={20} color="#FFFFFF" />
+          <Text style={styles.changeBtnText}>Change Password</Text>
+          <Ionicons name="chevron-forward" size={18} color="#FFFFFF" />
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-        <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
-        <Text style={styles.logoutBtnText}>Logout</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
+          <Text style={styles.logoutBtnText}>Logout</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
@@ -90,6 +113,9 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+  },
+  content: {
+    paddingBottom: 24,
   },
   header: {
     backgroundColor: colors.primary,

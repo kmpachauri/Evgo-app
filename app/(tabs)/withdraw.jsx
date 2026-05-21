@@ -2,12 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Modal, ScrollView,
+  ActivityIndicator, Modal, RefreshControl, ScrollView,
   StyleSheet, Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
+import WebRefreshNotice from '../../components/WebRefreshNotice';
 import { colors } from '../../constants/colors';
 import { useApp } from '../../context/AppContext';
 import { createWithdraw } from '../../services/transactionService';
@@ -26,6 +27,7 @@ export default function WithdrawScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [withdrawAmt, setWithdrawAmt]   = useState('');
   const [submitting, setSubmitting]     = useState(false);
+  const [refreshing, setRefreshing]     = useState(false);
 
   useEffect(() => {
     const latestBank = user?.bankDetails || {};
@@ -42,6 +44,15 @@ export default function WithdrawScreen() {
       return;
     }
     setModalVisible(true);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refreshAppData();
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleWithdraw = async () => {
@@ -87,11 +98,20 @@ export default function WithdrawScreen() {
         <View style={{ width: 30 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Available Balance</Text>
           <Text style={styles.balanceValue}>₹{Number(balance || 0).toFixed(2)}</Text>
         </View>
+
+        <WebRefreshNotice
+          onPress={onRefresh}
+          refreshing={refreshing}
+          label="Tap here to refresh balance and bank details on web"
+        />
 
         <Text style={styles.sectionTitle}>BANK DETAILS</Text>
 
