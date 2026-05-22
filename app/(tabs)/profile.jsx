@@ -41,9 +41,9 @@ export default function ProfileScreen() {
     refreshAppData();
   }, [refreshAppData]);
 
-  const displayMobile = user?.phone || user?.bank?.mobile || 'N/A';
+  const displayMobile = user?.phone || user?.bank?.mobile || "N/A";
   const displayId = normalizeBrandCode(user?.id || user?._id || "", "EVGO");
-  const mobileText = displayMobile === 'N/A' ? 'N/A' : `+91 ${displayMobile}`;
+  const mobileText = displayMobile === "N/A" ? "N/A" : `+91 ${displayMobile}`;
 
   return (
     <View style={styles.screen}>
@@ -89,10 +89,14 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.balanceRow}>
             <Card style={styles.balance}>
-              <Text style={styles.balanceValue}>{formatNumber(user?.totalIncome)} Rs</Text>
+              <Text style={styles.balanceValue}>
+                {formatNumber(user?.totalIncome)} Rs
+              </Text>
               <Text style={styles.label}>Total Income</Text>
               <View style={styles.line} />
-              <Text style={styles.balanceValue}>{formatNumber(user?.currentBalance)} Rs</Text>
+              <Text style={styles.balanceValue}>
+                {formatNumber(user?.currentBalance)} Rs
+              </Text>
               <Text style={styles.label}>Current Balance</Text>
             </Card>
             <View style={styles.buttons}>
@@ -116,7 +120,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <ListItem
+        {/* <ListItem
           icon="download"
           label="Download App"
           onPress={() => {
@@ -124,7 +128,7 @@ export default function ProfileScreen() {
               window.location.href = "https://evgo.site/download/latest.apk";
             }
           }}
-        />
+        /> */}
 
         <ListItem
           icon="gift-outline"
@@ -141,7 +145,7 @@ export default function ProfileScreen() {
           label="Account"
           onPress={() => router.push("/(tabs)/bank-details")}
         />
-        
+
         <ListItem
           icon="calendar-outline"
           label="Records"

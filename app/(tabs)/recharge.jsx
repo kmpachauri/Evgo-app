@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert, Platform, RefreshControl, ScrollView, StatusBar, StyleSheet,
   Text, TextInput, TouchableOpacity, View,
@@ -24,6 +24,10 @@ export default function RechargeScreen() {
   const [amount, setAmount] = useState(String(params.amount || ''));
   const [selectedMethod, setSelectedMethod] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    setAmount(String(params.amount || ''));
+  }, [params.amount]);
 
   const handleRecharge = () => {
     if (!amount || Number(amount) <= 0) {

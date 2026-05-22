@@ -1,7 +1,8 @@
 import axios from "axios";
 
 export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "https://node.evgo.site";
+  // process.env.EXPO_PUBLIC_API_BASE_URL || "https://node.evgo.site";
+  process.env.EXPO_PUBLIC_API_BASE_URL || "http://10.249.236.1:5000";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

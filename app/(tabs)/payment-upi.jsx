@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, router, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator, Clipboard, Image, Platform, ScrollView,
   StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,
@@ -20,8 +20,34 @@ export default function PaymentUpiScreen() {
   const [paymentInfo, setPaymentInfo] = useState(null);
 
   useEffect(() => {
-    api.get('/user/payment-info').then((res) => setPaymentInfo(res.data?.data || {})).catch(() => setPaymentInfo({}));
+    console.log('[payment-upi] screen mounted', { amount, method, planId });
+    return () => {
+      console.log('[payment-upi] screen unmounted');
+    };
+  }, [amount, method, planId]);
+
+  const fetchPaymentInfo = useCallback(async () => {
+    console.log('[payment-upi] fetching payment info...');
+    setPaymentInfo(null);
+    try {
+      const res = await api.get('/user/payment-info');
+      console.log('[payment-upi] payment info success', res.data);
+      setPaymentInfo(res.data?.data || {});
+    } catch (error) {
+      console.log('[payment-upi] payment info failed', error?.message || error);
+      setPaymentInfo({});
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log('[payment-upi] screen focused');
+      fetchPaymentInfo();
+      return () => {
+        console.log('[payment-upi] screen unfocused');
+      };
+    }, [fetchPaymentInfo]),
+  );
 
   const upiId = paymentInfo?.upiId || '';
   const qrImage = paymentInfo?.qrCodeImage || '';
