@@ -65,8 +65,17 @@ api.interceptors.response.use(
       `[API] ERROR ${error?.response?.status || 0} ${error?.config?.url}`,
       msg,
     );
-    if (error?.response?.status === 401 && onAutoLogout) {
-      onAutoLogout();
+    if (
+      onAutoLogout &&
+      (
+        error?.response?.status === 401 ||
+        (
+          error?.response?.status === 403 &&
+          String(msg).toLowerCase().includes("account is blocked")
+        )
+      )
+    ) {
+      onAutoLogout(msg);
     }
     const err = new Error(msg);
     err.status = error?.response?.status;

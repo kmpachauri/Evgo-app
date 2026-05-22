@@ -55,14 +55,6 @@ export default function MyProfileScreen() {
 
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
-            <Ionicons name="mail" size={20} color={colors.primary} />
-            <View style={styles.infoText}>
-              <Text style={styles.infoLabel}>Email Id</Text>
-              <Text style={styles.infoValue}>{user?.email ?? '—'}</Text>
-            </View>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.infoRow}>
             <Ionicons name="call-outline" size={20} color={colors.primary} />
             <View style={styles.infoText}>
               <Text style={styles.infoLabel}>Mobile Number</Text>

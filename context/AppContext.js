@@ -6,11 +6,12 @@ import Toast from 'react-native-toast-message';
 import { setAuthToken, setAutoLogoutHandler } from '../services/api';
 import * as authService from '../services/authService';
 import { claimDailySignIn as claimDailySignInRequest, getTransactions } from '../services/transactionService';
-import { getDevices, getIncome, getNotifications, getTeam, getUserProfile } from '../services/userService';
+import { getDevices, getIncome, getNotifications, getSessionStatus, getTeam, getUserProfile } from '../services/userService';
 
 const TOKEN_KEY = 'auth_token';
 const SEEN_COUPON_NOTIFICATION_KEY = 'seen_coupon_notification_id';
 const APP_REFRESH_INTERVAL_MS = 3 * 60 * 1000;
+const SESSION_CHECK_INTERVAL_MS = 10 * 1000;
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
@@ -142,8 +143,15 @@ export function AppProvider({ children }) {
 
   // auto logout on 401
   useEffect(() => {
-    setAutoLogoutHandler(() => {
-      Toast.show({ type: 'error', text1: 'Session Expired', text2: 'Please login again.' });
+    setAutoLogoutHandler((message) => {
+      const normalizedMessage = String(message || '').toLowerCase();
+      const isBlocked = normalizedMessage.includes('account is blocked');
+
+      Toast.show({
+        type: 'error',
+        text1: isBlocked ? 'Account Suspended' : 'Session Expired',
+        text2: isBlocked ? 'Your account has been suspended. Please contact support.' : 'Please login again.',
+      });
       signOut();
     });
   }, [signOut]);
@@ -194,6 +202,62 @@ export function AppProvider({ children }) {
       isMounted = false;
     };
   }, [notifications, token]);
+
+  useEffect(() => {
+    if (!initialized || !token) {
+      return undefined;
+    }
+
+    let intervalId = null;
+    let stopped = false;
+
+    const runSessionCheck = async () => {
+      if (!tokenRef.current || stopped) {
+        return;
+      }
+
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return;
+      }
+
+      try {
+        await getSessionStatus();
+      } catch (_error) {
+        // Auto logout is handled centrally by the API interceptor.
+      }
+    };
+
+    intervalId = setInterval(runSessionCheck, SESSION_CHECK_INTERVAL_MS);
+
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        runSessionCheck();
+      }
+    });
+
+    let visibilityHandler = null;
+    if (typeof document !== 'undefined' && document.addEventListener) {
+      visibilityHandler = () => {
+        if (document.visibilityState === 'visible') {
+          runSessionCheck();
+        }
+      };
+      document.addEventListener('visibilitychange', visibilityHandler);
+    }
+
+    runSessionCheck();
+
+    return () => {
+      stopped = true;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      appStateSubscription.remove();
+      if (visibilityHandler && typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', visibilityHandler);
+      }
+    };
+  }, [initialized, token]);
 
   useEffect(() => {
     if (!initialized || !token) {

@@ -71,7 +71,6 @@ export default function WithdrawScreen() {
         ifsc: ifsc.trim().toUpperCase(),
         bankName: bankName.trim(),
         phone: user?.phone || bank.mobile || '',
-        email: user?.email || '',
       });
       setModalVisible(false);
       setWithdrawAmt('');

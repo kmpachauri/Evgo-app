@@ -5,6 +5,11 @@ export async function getUserProfile() {
   return response.data;
 }
 
+export async function getSessionStatus() {
+  const response = await api.get('/user/session');
+  return response.data?.data || null;
+}
+
 export async function saveUserBankDetails(payload) {
   const response = await api.put('/user/bank-details', payload);
   return response.data;
