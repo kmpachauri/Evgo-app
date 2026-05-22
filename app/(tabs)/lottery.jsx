@@ -153,14 +153,15 @@ export default function LotteryScreen() {
         <View style={styles.terms}>
           <Text style={styles.termsTitle}>Terms & Conditions</Text>
           <Text style={styles.termsText}>
-            Lottery chance goes to the direct sponsor when their referred user
-            purchases a plan and that plan becomes active.{"\n"}
-            Each eligible referral plan purchase gives exactly one same-day
-            claim opportunity.{"\n"}
-            Unclaimed lottery chances expire automatically at 12:00 AM IST.
-            {"\n"}
-            Claimed rewards are added directly to your wallet and income
-            history.
+            Jab aapke direct referral wala user koi plan purchase karta hai aur
+            woh plan active ho jata hai, tab uska lottery chance direct sponsor
+            ko milta hai.{"\n"}
+            Har eligible referral plan purchase par same day sirf ek hi claim
+            chance milta hai.{"\n"}
+            Jo lottery chance claim nahi hota, woh raat 12:00 AM IST par
+            automatically expire ho jata hai.{"\n"}
+            Jo reward claim hoga, woh seedha aapke wallet aur income history
+            me add ho jayega.
           </Text>
         </View>
 

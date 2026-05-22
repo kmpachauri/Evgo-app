@@ -8,6 +8,16 @@ import { api } from '../../services/api';
 const TABS = ['Deposit', 'Withdraw'];
 const STATUS_COLOR = { pending: '#F59E0B', approved: '#10B981', rejected: '#EF4444' };
 
+const isManualAdminDeduct = (item) =>
+  item?.displayType === 'Manual Deduct' ||
+  String(item?.remark || '').toLowerCase().includes('manual deduct by admin') ||
+  (
+    Number(item?.taxAmount || 0) === 0 &&
+    Number(item?.netAmount || 0) === Number(item?.amount || 0) &&
+    !item?.bankSnapshot?.accountNumber &&
+    String(item?.status || '').toLowerCase() === 'approved'
+  );
+
 export default function RecordScreen() {
   const [activeTab, setActiveTab] = useState('Deposit');
   const [deposits, setDeposits]   = useState([]);
@@ -46,8 +56,13 @@ export default function RecordScreen() {
     <View style={styles.card}>
       <View style={styles.cardLeft}>
         <Text style={styles.cardType}>
-          {activeTab === 'Deposit' ? (item.plan?.name || 'Recharge') : 'Withdrawal'}
+          {activeTab === 'Deposit'
+            ? (item.plan?.name || 'Recharge')
+            : (isManualAdminDeduct(item) ? 'Manual Deduct' : (item.displayType || 'Withdrawal'))}
         </Text>
+        {activeTab === 'Withdraw' && (item.displaySubLabel || isManualAdminDeduct(item)) ? (
+          <Text style={styles.cardSub}>{item.displaySubLabel || 'by admin'}</Text>
+        ) : null}
         <Text style={styles.cardDate}>{item.createdAt ? new Date(item.createdAt).toLocaleString() : ''}</Text>
         {activeTab === 'Deposit' && item.utrNumber ? (
           <Text style={styles.cardSub}>UTR: {item.utrNumber}</Text>
