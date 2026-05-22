@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { Alert, Platform, RefreshControl, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, RefreshControl, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
 
 import { Card } from '../../components/evgo/Card';
@@ -14,13 +14,43 @@ function normalizeUserCode(value = '') {
   return String(value).trim().replace(/^jio/i, 'EVGO');
 }
 
+function formatTableDate(value) {
+  if (!value || value === '-') {
+    return { date: '-', time: '' };
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return { date: '-', time: '' };
+  }
+
+  return {
+    date: date.toLocaleDateString('en-IN'),
+    time: date.toLocaleTimeString('en-IN'),
+  };
+}
+
 export default function TeamScreen() {
   const { team, user, loading, error, refreshAppData } = useApp();
+  const { width } = useWindowDimensions();
   const [refreshing, setRefreshing] = useState(false);
   const levels = team?.levels ?? [];
   const members = team?.members ?? [];
   const inviteCode = normalizeInviteCode(user?.inviteCode);
   const inviteUrl = `https://evgo.site/register?ref=${inviteCode}`;
+  const isCompactScreen = width < 390;
+  const columnWidths = {
+    id: isCompactScreen ? 130 : 140,
+    mobile: isCompactScreen ? 95 : 110,
+    date: isCompactScreen ? 110 : 118,
+    status: isCompactScreen ? 80 : 86,
+  };
+  const tableMinWidth =
+    columnWidths.id +
+    columnWidths.mobile +
+    columnWidths.date +
+    columnWidths.status +
+    columnWidths.date;
 
   useEffect(() => {
     refreshAppData();
@@ -82,30 +112,88 @@ export default function TeamScreen() {
 
       {/* Beautiful Table */}
       <View style={styles.tableWrap}>
-        {/* Header */}
-        <View style={styles.tableHead}>
-          {['ID', 'Mobile', 'DOJ', 'Status', 'DOA'].map((h) => (
-            <Text key={h} style={styles.headCell}>{h}</Text>
-          ))}
-        </View>
-        {/* Rows */}
-        {members.map((member, i) => (
-          <View key={member.id} style={[styles.tableRow, i % 2 === 0 && styles.tableRowAlt]}>
-            <Text style={styles.cell}>{normalizeUserCode(member.id)}</Text>
-            <Text style={styles.cell}>{member.mobile}</Text>
-            <Text style={styles.cell}>{member.joinedAt}</Text>
-            <View style={styles.cellWrap}>
-              <Text style={[
-                styles.statusPill,
-                member.status === 'Active' ? styles.statusGreen : styles.statusGray
-              ]}>{member.status}</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={[styles.tableInner, { minWidth: tableMinWidth }]}>
+            <View style={styles.tableHead}>
+              {['ID', 'Mobile', 'DOJ', 'Status', 'DOA'].map((h) => (
+                <Text
+                  key={h}
+                  style={[
+                    styles.headCell,
+                    isCompactScreen && styles.headCellCompact,
+                    h === 'ID' && { width: columnWidths.id },
+                    h === 'Mobile' && { width: columnWidths.mobile },
+                    h === 'Status' && { width: columnWidths.status },
+                    (h === 'DOJ' || h === 'DOA') && { width: columnWidths.date },
+                  ]}
+                >
+                  {h}
+                </Text>
+              ))}
             </View>
-            <Text style={styles.cell}>{member.activeAt}</Text>
+            {members.map((member, i) => (
+              <View key={member.id} style={[styles.tableRow, i % 2 === 0 && styles.tableRowAlt]}>
+                {(() => {
+                  const joined = formatTableDate(member.joinedAt);
+                  const active = formatTableDate(member.activeAt);
+
+                  return (
+                    <>
+                      <Text
+                        style={[
+                          styles.cell,
+                          isCompactScreen && styles.cellCompact,
+                          { width: columnWidths.id },
+                        ]}
+                      >
+                        {normalizeUserCode(member.id)}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.cell,
+                          isCompactScreen && styles.cellCompact,
+                          { width: columnWidths.mobile },
+                        ]}
+                      >
+                        {member.mobile || '-'}
+                      </Text>
+                      <View style={[styles.dateCellWrap, { width: columnWidths.date }]}>
+                        <Text style={[styles.cell, isCompactScreen && styles.cellCompact]}>{joined.date}</Text>
+                        {joined.time ? (
+                          <Text style={[styles.timeText, isCompactScreen && styles.timeTextCompact]}>
+                            {joined.time}
+                          </Text>
+                        ) : null}
+                      </View>
+                      <View style={[styles.cellWrap, { width: columnWidths.status }]}>
+                        <Text
+                          style={[
+                            styles.statusPill,
+                            isCompactScreen && styles.statusPillCompact,
+                            member.status === 'Active' ? styles.statusGreen : styles.statusGray,
+                          ]}
+                        >
+                          {member.status}
+                        </Text>
+                      </View>
+                      <View style={[styles.dateCellWrap, { width: columnWidths.date }]}>
+                        <Text style={[styles.cell, isCompactScreen && styles.cellCompact]}>{active.date}</Text>
+                        {active.time ? (
+                          <Text style={[styles.timeText, isCompactScreen && styles.timeTextCompact]}>
+                            {active.time}
+                          </Text>
+                        ) : null}
+                      </View>
+                    </>
+                  );
+                })()}
+              </View>
+            ))}
+            {members.length === 0 && !loading && (
+              <Text style={styles.emptyText}>No members yet</Text>
+            )}
           </View>
-        ))}
-        {members.length === 0 && !loading && (
-          <Text style={styles.emptyText}>No members yet</Text>
-        )}
+        </ScrollView>
       </View>
       {loading ? <Text style={styles.statusText}>Loading...</Text> : null}
       {error   ? <Text style={styles.statusText}>{error}</Text>   : null}
@@ -155,6 +243,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
   },
+  tableInner: {
+    width: '100%',
+  },
   tableHead: {
     flexDirection: 'row',
     backgroundColor: colors.primaryDark,
@@ -162,8 +253,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   headCell: {
-    flex: 1, color: '#FFFFFF', fontWeight: '900',
+    color: '#FFFFFF', fontWeight: '900',
     fontSize: 11, textAlign: 'center',
+  },
+  headCellCompact: {
+    fontSize: 10,
   },
   tableRow: {
     flexDirection: 'row',
@@ -175,14 +269,34 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.75)',
   },
   cell: {
-    flex: 1, fontSize: 11, color: '#1A1A1A',
+    fontSize: 11, color: '#1A1A1A',
     textAlign: 'center', fontWeight: '600',
   },
-  cellWrap: { flex: 1, alignItems: 'center' },
+  cellCompact: {
+    fontSize: 10,
+  },
+  dateCellWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cellWrap: { alignItems: 'center' },
+  timeText: {
+    marginTop: 2,
+    fontSize: 10,
+    color: '#5E5E5E',
+    textAlign: 'center',
+  },
+  timeTextCompact: {
+    fontSize: 9,
+  },
   statusPill: {
     fontSize: 10, fontWeight: '800', paddingHorizontal: 7,
     paddingVertical: 3, borderRadius: 10, overflow: 'hidden',
     textAlign: 'center',
+  },
+  statusPillCompact: {
+    fontSize: 9,
+    paddingHorizontal: 6,
   },
   statusGreen: { backgroundColor: '#D4EDDA', color: '#1A6B35' },
   statusGray:  { backgroundColor: '#E0E0E0', color: '#555555' },
