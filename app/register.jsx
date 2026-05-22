@@ -16,31 +16,42 @@ import { ChargerCarArt, EvgoLogo } from "../components/evgo/BrandArt";
 import { EvgoButton } from "../components/evgo/Button";
 import { colors } from "../constants/colors";
 import { useApp } from "../context/AppContext";
-import { requestOtp } from "../services/authService";
 
 export default function RegisterScreen() {
   const { signUp, loading, error } = useApp();
   const { ref } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  const [otpLoading, setOtpLoading] = useState(false);
   const [form, setForm] = useState({
     inviteCode: ref || "",
-    email: "",
     phone: "",
     password: "",
-    otp: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const updateField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
   const handleRegister = async () => {
+    if (form.password !== form.confirmPassword) {
+      Toast.show({
+        type: "error",
+        text1: "Password Mismatch",
+        text2: "Password and confirm password must match.",
+      });
+      return;
+    }
+
     try {
-      await signUp(form);
+      await signUp({
+        inviteCode: form.inviteCode,
+        phone: form.phone,
+        password: form.password,
+      });
       router.replace(
-        `/congratulations?email=${form.email}&password=${form.password}`,
+        `/congratulations?phone=${form.phone}&password=${form.password}`,
       );
     } catch (registrationError) {
       Toast.show({
@@ -48,34 +59,6 @@ export default function RegisterScreen() {
         text1: "Registration Failed",
         text2: registrationError?.message || "Unable to register right now.",
       });
-    }
-  };
-
-  const handleOtp = async () => {
-    if (!form.email.trim()) {
-      Toast.show({
-        type: "error",
-        text1: "Email required",
-        text2: "Please enter your email address first.",
-      });
-      return;
-    }
-    setOtpLoading(true);
-    try {
-      await requestOtp(form.email);
-      Toast.show({
-        type: "success",
-        text1: "OTP Sent",
-        text2: `Verification code sent to ${form.email}`,
-      });
-    } catch (otpError) {
-      Toast.show({
-        type: "error",
-        text1: "OTP Failed",
-        text2: otpError?.message || "Unable to send email OTP.",
-      });
-    } finally {
-      setOtpLoading(false);
     }
   };
 
@@ -87,6 +70,17 @@ export default function RegisterScreen() {
       <View style={styles.overlay} />
       <View style={[styles.panel, { marginTop: insets.top + 40 }]}>
         <EvgoLogo compact showTagline={false} />
+        <View style={styles.switchRow}>
+          <TouchableOpacity
+            style={styles.switchBtn}
+            onPress={() => router.replace("/login")}
+          >
+            <Text style={styles.switchText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.switchBtn, styles.switchBtnActive]}>
+            <Text style={[styles.switchText, styles.switchTextActive]}>Register</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.form}>
           <View style={styles.inputWrap}>
@@ -97,18 +91,6 @@ export default function RegisterScreen() {
               onChangeText={(value) => updateField("inviteCode", value)}
               placeholder="Enter referral code"
               placeholderTextColor="#777C85"
-            />
-          </View>
-          <View style={styles.inputWrap}>
-            <FontAwesome5 name="envelope" size={14} color="#A8AAB0" />
-            <TextInput
-              style={styles.input}
-              value={form.email}
-              onChangeText={(value) => updateField("email", value)}
-              placeholder="Enter your email"
-              placeholderTextColor="#777C85"
-              keyboardType="email-address"
-              autoCapitalize="none"
             />
           </View>
           <View style={styles.inputWrap}>
@@ -144,28 +126,24 @@ export default function RegisterScreen() {
               />
             </TouchableOpacity>
           </View>
-          <View style={styles.otpRow}>
-            <View style={[styles.inputWrap, styles.otpInputWrap]}>
-              <FontAwesome5 name="shield-alt" size={14} color="#A8AAB0" />
-              <TextInput
-                style={styles.input}
-                value={form.otp}
-                onChangeText={(value) => updateField("otp", value)}
-                placeholder="Enter email OTP"
-                placeholderTextColor="#777C85"
-                keyboardType="number-pad"
-              />
-            </View>
+          <View style={styles.inputWrap}>
+            <FontAwesome5 name="lock" size={14} color="#A8AAB0" />
+            <TextInput
+              style={styles.input}
+              value={form.confirmPassword}
+              onChangeText={(value) => updateField("confirmPassword", value)}
+              placeholder="Confirm your password"
+              placeholderTextColor="#777C85"
+              secureTextEntry={!showConfirmPassword}
+            />
             <TouchableOpacity
-              style={styles.otpButton}
-              onPress={handleOtp}
-              disabled={otpLoading}
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
             >
-              {otpLoading ? (
-                <ActivityIndicator size="small" color="#7DBCE0" />
-              ) : (
-                <Text style={styles.send}>Send OTP</Text>
-              )}
+              <FontAwesome5
+                name={showConfirmPassword ? "eye-slash" : "eye"}
+                size={14}
+                color="#A8AAB0"
+              />
             </TouchableOpacity>
           </View>
           <EvgoButton
@@ -174,12 +152,6 @@ export default function RegisterScreen() {
             disabled={loading}
           >
             {loading ? <ActivityIndicator color="#fff" /> : "Register"}
-          </EvgoButton>
-          <EvgoButton
-            style={styles.login}
-            onPress={() => router.replace("/login")}
-          >
-            Goto Login
           </EvgoButton>
           {error ? <Text style={styles.error}>{error}</Text> : null}
         </View>
@@ -196,7 +168,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     position: "absolute",
-    top: 92,
+    top: 225,
     width: "100%",
     opacity: 0.35,
   },
@@ -205,11 +177,37 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     alignItems: "center",
   },
+  switchRow: {
+    width: "100%",
+    flexDirection: "row",
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderRadius: 15,
+    padding: 4,
+    marginTop: 84,
+  },
+  switchBtn: {
+    flex: 1,
+    height: 42,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  switchBtnActive: {
+    backgroundColor: "#FFFFFF",
+  },
+  switchText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  switchTextActive: {
+    color: colors.primary,
+  },
 
   form: {
     width: "100%",
     gap: 16,
-    marginTop: 80,
+    marginTop: 32,
   },
   inputWrap: {
     height: 52,
@@ -219,23 +217,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     gap: 10,
-  },
-  otpRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  otpInputWrap: {
-    flex: 1,
-  },
-  otpButton: {
-    height: 52,
-    minWidth: 96,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    backgroundColor: "#F2F3F8",
-    alignItems: "center",
-    justifyContent: "center",
   },
   country: {
     color: "#6E7278",
@@ -247,20 +228,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#4E5258",
   },
-  send: {
-    color: "#7DBCE0",
-    fontSize: 12,
-    fontWeight: "800",
-  },
   register: {
     marginTop: 4,
     borderWidth: 2,
     borderColor: "#D9ECD0",
     height: 54,
-  },
-  login: {
-    height: 42,
-    marginHorizontal: 10,
   },
   error: {
     color: "#FFFFFF",

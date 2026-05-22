@@ -140,26 +140,42 @@ export default function LotteryScreen() {
           <Text style={styles.summaryTitle}>Pending Chance</Text>
           <Text style={styles.summaryValue}>
             {pending
-              ? `${normalizePlanName(pending.planName)} • ₹${pending.minAmount} to ₹${pending.maxAmount}`
+              ? `${normalizePlanName(pending.planName)} • ₹${pending.maxAmount}`
               : "No pending lottery right now"}
           </Text>
           <Text style={styles.summaryHint}>
             {pending
               ? "Tap the center button to reveal your reward."
-              : "Your next approved plan will create a new lottery chance."}
+              : "Your next direct referral's approved plan can create a new lottery chance for you."}
           </Text>
         </View>
 
         <View style={styles.terms}>
           <Text style={styles.termsTitle}>Terms & Conditions</Text>
           <Text style={styles.termsText}>
-            Lottery becomes available after your recharge is approved and the
-            linked plan is activated.{"\n"}
-            Each successful plan purchase gives exactly one claim opportunity.
+            Lottery chance goes to the direct sponsor when their referred user
+            purchases a plan and that plan becomes active.{"\n"}
+            Each eligible referral plan purchase gives exactly one same-day
+            claim opportunity.{"\n"}
+            Unclaimed lottery chances expire automatically at 12:00 AM IST.
             {"\n"}
             Claimed rewards are added directly to your wallet and income
             history.
           </Text>
+        </View>
+
+        <View style={styles.rulesCard}>
+          <Text style={styles.rulesTitle}>Lottery Rules</Text>
+          <Text style={styles.ruleLine}>🌀685</Text>
+          <Text style={styles.ruleLine}>Same day 1 members ad 55⚡</Text>
+          <Text style={styles.ruleLine}>🌀2350</Text>
+          <Text style={styles.ruleLine}>Same day 1 members ad 155⚡</Text>
+          <Text style={styles.ruleLine}>🌀6650</Text>
+          <Text style={styles.ruleLine}>Same day 1 members ad 465⚡</Text>
+          <Text style={styles.ruleLine}>🌀13000</Text>
+          <Text style={styles.ruleLine}>Same day 1 members ad 965⚡</Text>
+          <Text style={styles.ruleLine}>🌀26500</Text>
+          <Text style={styles.ruleLine}>Same day 1 members ad 2445⚡</Text>
         </View>
 
         <View style={styles.historyCard}>
@@ -175,7 +191,9 @@ export default function LotteryScreen() {
                 <Text style={styles.historyAmount}>
                   {item.status === "claimed"
                     ? `₹${item.rewardAmount}`
-                    : "Pending"}
+                    : item.status === "pending"
+                      ? `Pending • ₹${item.maxAmount}`
+                      : "Expired"}
                 </Text>
               </View>
             ))
@@ -260,6 +278,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   termsText: { fontSize: 13, color: "#333333", lineHeight: 20 },
+  rulesCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 16,
+  },
+  rulesTitle: {
+    fontSize: 17,
+    fontWeight: "900",
+    color: "#1A1A1A",
+    marginBottom: 10,
+  },
+  ruleLine: {
+    fontSize: 13,
+    color: "#333333",
+    lineHeight: 22,
+    fontWeight: "700",
+  },
   historyCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 14,

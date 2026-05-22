@@ -23,25 +23,10 @@ import { HomeHero } from "../../components/evgo/HomeHero";
 import { colors } from "../../constants/colors";
 import { useApp } from "../../context/AppContext";
 import { getSocialLinks } from "../../services/userService";
-
-
+import { resolveWhatsAppUrl } from "../../utils/socialLinks";
 
 const RECHARGE_AMOUNTS = [685, 2350, 6650, 13200, 26500];
 const PHONE_PREFIXES = ["80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "95", "96", "97", "98", "99"];
-
-function resolveWhatsAppUrl(value = "") {
-  const raw = String(value || "").trim();
-  if (!raw) {
-    return "";
-  }
-
-  if (/^https?:\/\//i.test(raw)) {
-    return raw;
-  }
-
-  const digits = raw.replace(/\D/g, "");
-  return digits ? `https://wa.me/${digits}` : "";
-}
 
 function randomFrom(list) {
   return list[Math.floor(Math.random() * list.length)];

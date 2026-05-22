@@ -32,8 +32,8 @@ export default function ProfileScreen() {
     setRefreshing(false);
   };
 
-  const handleLogout = () => {
-    signOut();
+  const handleLogout = async () => {
+    await signOut();
     router.replace("/login");
   };
 
@@ -120,7 +120,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* <ListItem
+        <ListItem
           icon="download"
           label="Download App"
           onPress={() => {
@@ -128,7 +128,7 @@ export default function ProfileScreen() {
               window.location.href = "https://evgo.site/download/latest.apk";
             }
           }}
-        /> */}
+        />
 
         <ListItem
           icon="gift-outline"
@@ -176,11 +176,13 @@ export default function ProfileScreen() {
           label="My Profile"
           onPress={() => router.push("/(tabs)/myprofile")}
         />
+        <ListItem
+          icon="log-out-outline"
+          label="Logout"
+          onPress={() => handleLogout()}
+        />
       </ScrollView>
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-        <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+      
     </View>
   );
 }
@@ -301,21 +303,5 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  logoutBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#E45F6C",
-    marginHorizontal: 16,
-    marginBottom: 12,
-    marginTop: 8,
-    borderRadius: 10,
-    paddingVertical: 14,
-  },
-  logoutText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "700",
-  },
+ 
 });

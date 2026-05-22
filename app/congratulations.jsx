@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 
 export default function CongratulationsScreen() {
-  const { email, password } = useLocalSearchParams();
+  const { phone, password } = useLocalSearchParams();
 
   return (
     <View style={styles.screen}>
@@ -15,7 +15,7 @@ export default function CongratulationsScreen() {
           Registration with{'\n'}
           EVgo.{'\n'}
           Here are your details{'\n'}
-          Email Id: {email || '—'}{'\n'}
+          Mobile No: {phone || '—'}{'\n'}
           Password: {password || '—'}{'\n'}
           -{'\n\n'}
           Eagerly awaiting your visit{'\n\n'}

@@ -26,7 +26,6 @@ export default function BankDetailsScreen() {
   const [confirmAccountNumber, setConfirmAccountNumber] = useState('');
   const [ifsc, setIfsc] = useState('');
   const [bankName, setBankName] = useState('');
-  const [upiId, setUpiId] = useState('');
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -38,7 +37,6 @@ export default function BankDetailsScreen() {
     setConfirmAccountNumber(bank.accountNumber || '');
     setIfsc(bank.ifsc || '');
     setBankName(bank.bankName || '');
-    setUpiId(bank.upiId || '');
     setIsEditing(!hasSavedBankDetails(bank));
   }, [user]);
 
@@ -69,7 +67,6 @@ export default function BankDetailsScreen() {
         accountNumber: accountNumber.trim(),
         ifsc: ifsc.trim().toUpperCase(),
         bankName: bankName.trim(),
-        upiId: upiId.trim(),
       });
       await refreshAppData();
       setIsEditing(false);
@@ -116,7 +113,6 @@ export default function BankDetailsScreen() {
             <InfoRow label="Bank Name" value={savedBank.bankName} />
             <InfoRow label="Account Number" value={maskAccountNumber(savedBank.accountNumber)} />
             <InfoRow label="IFSC Code" value={savedBank.ifsc} />
-            {savedBank.upiId ? <InfoRow label="UPI ID" value={savedBank.upiId} /> : null}
 
             <View style={styles.actionRow}>
               <TouchableOpacity style={styles.secondaryBtn} onPress={handleRefresh} disabled={refreshing}>
@@ -136,7 +132,6 @@ export default function BankDetailsScreen() {
             <Field label="Confirm Account Number" value={confirmAccountNumber} onChangeText={setConfirmAccountNumber} keyboardType="numeric" />
             <Field label="IFSC Code" value={ifsc} onChangeText={setIfsc} autoCapitalize="characters" />
             <Field label="Bank Name" value={bankName} onChangeText={setBankName} />
-            <Field label="UPI ID (optional)" value={upiId} onChangeText={setUpiId} />
 
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={saving}>
               <Text style={styles.saveBtnText}>{saving ? 'Saving...' : 'Save Bank Details'}</Text>
@@ -181,7 +176,7 @@ function InfoRow({ label, value }) {
 }
 
 function hasSavedBankDetails(bank = {}) {
-  return Boolean(bank?.holderName || bank?.accountNumber || bank?.ifsc || bank?.bankName || bank?.upiId);
+  return Boolean(bank?.holderName || bank?.accountNumber || bank?.ifsc || bank?.bankName);
 }
 
 function maskAccountNumber(value = '') {

@@ -21,7 +21,6 @@ export default function WithdrawScreen() {
   const [account, setAccount] = useState(bank.accountNumber || '');
   const [ifsc, setIfsc]       = useState(bank.ifsc || '');
   const [bankName, setBankName] = useState(bank.bankName || '');
-  const [upiId, setUpiId]     = useState(bank.upiId || '');
 
   const [modalVisible, setModalVisible] = useState(false);
   const [withdrawAmt, setWithdrawAmt]   = useState('');
@@ -34,12 +33,11 @@ export default function WithdrawScreen() {
     setAccount(latestBank.accountNumber || '');
     setIfsc(latestBank.ifsc || '');
     setBankName(latestBank.bankName || '');
-    setUpiId(latestBank.upiId || '');
   }, [user]);
 
   const handleSubmit = () => {
-    if (!holder || !account || !ifsc) {
-      Toast.show({ type: 'error', text1: 'Incomplete', text2: 'Please fill Holder Name, Account Number and IFSC.' });
+    if (!holder.trim() || !account.trim() || !ifsc.trim() || !bankName.trim()) {
+      Toast.show({ type: 'error', text1: 'Incomplete', text2: 'Please fill holder name, account number, IFSC and bank name.' });
       return;
     }
     setModalVisible(true);
@@ -68,11 +66,10 @@ export default function WithdrawScreen() {
     try {
       await createWithdraw({
         amount: amt,
-        holderName: holder,
-        accountNumber: account,
-        ifsc,
-        bankName,
-        upiId,
+        holderName: holder.trim(),
+        accountNumber: account.trim(),
+        ifsc: ifsc.trim().toUpperCase(),
+        bankName: bankName.trim(),
         phone: user?.phone || bank.mobile || '',
         email: user?.email || '',
       });
@@ -112,7 +109,6 @@ export default function WithdrawScreen() {
         <Field label="Bank Account Number" value={account} onChangeText={setAccount} keyboardType="numeric" />
         <Field label="IFSC Code" value={ifsc} onChangeText={setIfsc} autoCapitalize="characters" />
         <Field label="Bank Name" value={bankName} onChangeText={setBankName} />
-        <Field label="UPI ID (optional)" value={upiId} onChangeText={setUpiId} />
 
         <Text style={styles.note}>
           ⚠️ Minimum withdrawal: ₹210. Tax of 5% will be deducted. Only one request per day allowed.

@@ -6,6 +6,7 @@ import Toast from 'react-native-toast-message';
 import { Header } from '../../components/evgo/Header';
 import { colors } from '../../constants/colors';
 import { getSocialLinks } from '../../services/userService';
+import { resolveSupportUrl } from '../../utils/socialLinks';
 
 export default function SupportScreen() {
   const [links, setLinks] = useState(null);
@@ -17,19 +18,21 @@ export default function SupportScreen() {
   }, []);
 
   const support = [
-    { label: 'Telegram Channel', icon: 'telegram', color: '#35A9E1', url: links?.telegram },
-    { label: 'Whatsapp Support', icon: 'whatsapp', color: '#0BAA20', url: links?.whatsapp },
-    { label: 'Deposit Support', icon: 'telegram', color: '#35A9E1', url: links?.depositSupport },
-    { label: 'Withdrawal Support', icon: 'telegram', color: '#35A9E1', url: links?.withdrawalSupport },
+    { label: 'Telegram Channel', icon: 'telegram', color: '#35A9E1', type: 'telegram', url: links?.telegram },
+    { label: 'Whatsapp Support', icon: 'whatsapp', color: '#0BAA20', type: 'whatsapp', url: links?.whatsapp },
+    { label: 'Deposit Support', icon: 'telegram', color: '#35A9E1', type: 'telegram', url: links?.depositSupport },
+    { label: 'Withdrawal Support', icon: 'telegram', color: '#35A9E1', type: 'telegram', url: links?.withdrawalSupport },
   ];
 
-  const handlePress = (url) => {
-    if (!url) {
+  const handlePress = (type, url) => {
+    const resolvedUrl = resolveSupportUrl(type, url);
+
+    if (!resolvedUrl) {
       Toast.show({ type: 'info', text1: 'Coming Soon', text2: 'Link not configured yet.' });
       return;
     }
-    Linking.openURL(url).catch(() => {
-      Toast.show({ type: 'error', text1: 'Cannot open link', text2: url });
+    Linking.openURL(resolvedUrl).catch(() => {
+      Toast.show({ type: 'error', text1: 'Cannot open link', text2: resolvedUrl });
     });
   };
 
@@ -42,12 +45,12 @@ export default function SupportScreen() {
         </View>
       ) : (
         <View style={styles.grid}>
-          {support.map(({ label, icon, color, url }) => (
+          {support.map(({ label, icon, color, type, url }) => (
             <TouchableOpacity
               key={label}
               activeOpacity={0.84}
               style={styles.card}
-              onPress={() => handlePress(url)}
+              onPress={() => handlePress(type, url)}
             >
               <View style={styles.circle}>
                 <FontAwesome name={icon} size={50} color={color} />
