@@ -11,6 +11,15 @@ export default function SignScreen() {
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace('/(tabs)');
+  };
+
   const handleClaim = () => {
     claimDailySign()
       .then((claimed) => {
@@ -37,7 +46,7 @@ export default function SignScreen() {
   return (
     <View style={styles.screen}>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)/index')}>
+        <TouchableOpacity onPress={handleBack}>
           <Ionicons name="chevron-back-circle" size={30} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Sign</Text>
