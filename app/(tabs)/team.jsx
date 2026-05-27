@@ -31,13 +31,47 @@ function formatTableDate(value) {
   };
 }
 
+function buildMembersWithLevelFallback(members = [], levels = []) {
+  if (!members.length) {
+    return [];
+  }
+
+  let currentIndex = 0;
+  const levelRanges = levels.map((level) => {
+    const count = Number(level?.count || 0);
+    const start = currentIndex;
+    const end = start + count;
+    currentIndex = end;
+    return {
+      id: level.id,
+      label: level.label,
+      start,
+      end,
+    };
+  });
+
+  return members.map((member, index) => {
+    if (member.levelId) {
+      return member;
+    }
+
+    const matchedLevel = levelRanges.find((level) => index >= level.start && index < level.end);
+
+    return {
+      ...member,
+      levelId: matchedLevel?.id || null,
+      levelLabel: matchedLevel?.label || '',
+    };
+  });
+}
+
 export default function TeamScreen() {
   const { team, user, loading, error, refreshAppData } = useApp();
   const { width } = useWindowDimensions();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedLevelId, setSelectedLevelId] = useState(null);
   const levels = team?.levels ?? [];
-  const members = team?.members ?? [];
+  const members = buildMembersWithLevelFallback(team?.members ?? [], levels);
   const filteredMembers = selectedLevelId
     ? members.filter((member) => member.levelId === selectedLevelId)
     : members;
