@@ -1,6 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
+import { useFocusEffect } from 'expo-router';
 import { Alert, Platform, RefreshControl, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Card } from '../../components/evgo/Card';
 import { colors } from '../../constants/colors';
@@ -34,8 +35,12 @@ export default function TeamScreen() {
   const { team, user, loading, error, refreshAppData } = useApp();
   const { width } = useWindowDimensions();
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedLevelId, setSelectedLevelId] = useState(null);
   const levels = team?.levels ?? [];
   const members = team?.members ?? [];
+  const filteredMembers = selectedLevelId
+    ? members.filter((member) => member.levelId === selectedLevelId)
+    : members;
   const inviteCode = normalizeInviteCode(user?.inviteCode);
   const inviteUrl = `https://evgo.site/register?ref=${inviteCode}`;
   const isCompactScreen = width < 390;
@@ -55,6 +60,18 @@ export default function TeamScreen() {
   useEffect(() => {
     refreshAppData();
   }, [refreshAppData]);
+
+  useEffect(() => {
+    if (selectedLevelId && !levels.some((level) => level.id === selectedLevelId)) {
+      setSelectedLevelId(null);
+    }
+  }, [levels, selectedLevelId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedLevelId(null);
+    }, [])
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -104,9 +121,18 @@ export default function TeamScreen() {
 
       <View style={styles.levels}>
         {levels.map((level) => (
-          <Text key={level.id} style={styles.level}>
-            {level.label} ({level.count})
-          </Text>
+          <TouchableOpacity
+            key={level.id}
+            style={styles.levelButton}
+            activeOpacity={0.85}
+            onPress={() => {
+              setSelectedLevelId((current) => (current === level.id ? null : level.id));
+            }}
+          >
+            <Text style={styles.level}>
+              {level.label} ({level.count})
+            </Text>
+          </TouchableOpacity>
         ))}
       </View>
 
@@ -131,7 +157,7 @@ export default function TeamScreen() {
                 </Text>
               ))}
             </View>
-            {members.map((member, i) => (
+            {filteredMembers.map((member, i) => (
               <View key={member.id} style={[styles.tableRow, i % 2 === 0 && styles.tableRowAlt]}>
                 {(() => {
                   const joined = formatTableDate(member.joinedAt);
@@ -189,7 +215,7 @@ export default function TeamScreen() {
                 })()}
               </View>
             ))}
-            {members.length === 0 && !loading && (
+            {filteredMembers.length === 0 && !loading && (
               <Text style={styles.emptyText}>No members yet</Text>
             )}
           </View>
@@ -226,8 +252,9 @@ const styles = StyleSheet.create({
   statValue: { color: colors.primary, fontSize: 29, fontWeight: '900' },
   statLabel: { color: colors.primary, fontSize: 14 },
   levels: { flexDirection: 'row', marginTop: 11 },
+  levelButton: { flex: 1 },
   level: {
-    flex: 1, backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1, borderColor: '#E5E5E5',
     textAlign: 'center', color: colors.primary,
     paddingVertical: 12, fontWeight: '900',
