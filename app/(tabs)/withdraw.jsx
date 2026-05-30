@@ -110,7 +110,7 @@ export default function WithdrawScreen() {
         <Field label="Bank Name" value={bankName} onChangeText={setBankName} />
 
         <Text style={styles.note}>
-          ⚠️ Minimum withdrawal: ₹210. Tax of 5% will be deducted. Only one request per day allowed.
+          ⚠️ Minimum withdrawal: ₹210. Tax of 5% will be deducted. One request per day is allowed, but if admin rejects it, you can submit one more request on the same day.
         </Text>
 
         <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
